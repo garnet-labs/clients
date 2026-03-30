@@ -27,6 +27,7 @@ import {
   ipcRequestUnlockBiometrics,
   type UserId as SdkUserId,
   BiometricsStatus as SdkBiometricsStatus,
+  ipcRequestAuthenticateBiometrics,
 } from "@bitwarden/sdk-internal";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 
@@ -66,6 +67,10 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock)) {
+      return await ipcRequestAuthenticateBiometrics(this.ipcService.client);
+    }
+
     try {
       await this.ensureConnected();
 

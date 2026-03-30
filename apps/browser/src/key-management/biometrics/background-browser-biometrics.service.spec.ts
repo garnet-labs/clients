@@ -35,8 +35,8 @@ describe("background browser biometrics service tests", function () {
       messagingService,
       vaultTimeoutSettingsService,
       pinService,
-      () => ipcService,
       configService,
+      ipcService,
     );
   });
 
