@@ -19,6 +19,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -89,6 +90,7 @@ describe("AccountSecurityComponent", () => {
   const validationService = mock<ValidationService>();
   const vaultNudgesService = mock<NudgesService>();
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
+  const sharedUnlockSettingsService = mock<SharedUnlockSettingsService>();
   const mockI18nService = mock<I18nService>();
 
   // Mock subjects to control the phishing detection observables
@@ -138,6 +140,7 @@ describe("AccountSecurityComponent", () => {
           useValue: mock<AutomaticUserConfirmationService>(),
         },
         { provide: ConfigService, useValue: configService },
+        { provide: SharedUnlockSettingsService, useValue: sharedUnlockSettingsService },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
       ],
     })
@@ -167,6 +170,8 @@ describe("AccountSecurityComponent", () => {
     mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
     platformUtilsService.isSafari.mockReturnValue(false);
     platformUtilsService.isFirefox.mockReturnValue(false);
+    sharedUnlockSettingsService.allowSharingUnlockState$.mockReturnValue(of(true));
+    sharedUnlockSettingsService.setAllowSharingUnlockState.mockResolvedValue(undefined);
 
     policyService.policiesByType$.mockReturnValue(of([null]));
 

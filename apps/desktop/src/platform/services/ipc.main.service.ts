@@ -9,6 +9,7 @@ import {
   isIpcMessage,
   IpcSessionRepository,
 } from "@bitwarden/common/platform/ipc";
+import { ipc } from "@bitwarden/desktop-napi";
 import {
   IncomingMessage,
   IpcClient,
@@ -84,7 +85,11 @@ export class IpcMainService extends IpcService {
         },
       });
 
-      this.nativeMessaging.messages$.subscribe((nativeMessage) => {
+      this.nativeMessaging.messages$.subscribe((nativeMessage: ipc.IpcMessage) => {
+        if (!nativeMessage.message) {
+          return;
+        }
+
         const ipcMessage = JSON.parse(nativeMessage.message);
         if (!isIpcMessage(ipcMessage)) {
           return;

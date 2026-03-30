@@ -291,7 +291,7 @@ describe("KeyRotationService", () => {
   let mockSdkUserKeyRotationService: MockProxy<UserKeyRotationServiceAbstraction>;
 
   const mockUser = {
-    id: "mockUserId" as UserId,
+    id: "00000000-0000-0000-0000-000000000001" as UserId,
     ...mockAccountInfoWith({
       email: "mockEmail",
       name: "mockName",
@@ -467,7 +467,7 @@ describe("KeyRotationService", () => {
       AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
     });
 
-    it("rotates the userkey and encrypted data and changes master password", async () => {
+    it("uses SDK key rotation and logs the user out", async () => {
       KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
       AccountRecoveryTrustComponent.open = initialPromptedOpenTrue;
       EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
@@ -489,17 +489,18 @@ describe("KeyRotationService", () => {
         mockUser,
         "masterPasswordHint",
       );
-      const arg = mockApiService.postUserKeyUpdate.mock.calls[0][0];
-      expect(arg.oldMasterKeyAuthenticationHash).toBe("mockMasterPasswordHash");
-      expect(arg.accountData.ciphers.length).toBe(2);
-      expect(arg.accountData.folders.length).toBe(2);
-      expect(arg.accountData.sends.length).toBe(2);
-      expect(arg.accountUnlockData.emergencyAccessUnlockData.length).toBe(1);
-      expect(arg.accountUnlockData.organizationAccountRecoveryUnlockData.length).toBe(1);
-      expect(arg.accountUnlockData.passkeyUnlockData.length).toBe(2);
+      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.SdkKeyRotation);
+      expect(mockSdkUserKeyRotationService.changePasswordAndRotateUserKey).toHaveBeenCalledWith(
+        "mockMasterPassword",
+        "mockMasterPassword1",
+        "masterPasswordHint",
+        "00000000-0000-0000-0000-000000000001",
+      );
+      expect(mockApiService.postUserKeyUpdate).not.toHaveBeenCalled();
+      expect(mockLogoutService.logout).toHaveBeenCalledWith(mockUser.id);
     });
 
-    it("passes the EnrollAeadOnKeyRotation feature flag to getRotatedAccountKeysFlagged", async () => {
+    it("uses the SDK key rotation feature flag and skips legacy rotation path", async () => {
       KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
       AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
       EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
@@ -550,19 +551,11 @@ describe("KeyRotationService", () => {
         "masterPasswordHint",
       );
 
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.EnrollAeadOnKeyRotation,
-      );
-      expect(spy).toHaveBeenCalledWith(
-        mockUser.id,
-        expect.any(PBKDF2KdfConfig),
-        mockUserSalt,
-        expect.objectContaining({ version: 1 }),
-        true,
-      );
+      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.SdkKeyRotation);
+      expect(spy).not.toHaveBeenCalled();
     });
 
-    it("throws if kdf config is null", async () => {
+    it("does not require KDF config on SDK key rotation path", async () => {
       KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
       AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
       EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
@@ -573,7 +566,7 @@ describe("KeyRotationService", () => {
           "mockMasterPassword1",
           mockUser,
         ),
-      ).rejects.toThrow();
+      ).resolves.toBeUndefined();
     });
 
     it("returns early when emergency access trust warning dialog is declined", async () => {
@@ -600,13 +593,13 @@ describe("KeyRotationService", () => {
       expect(mockApiService.postUserKeyUpdate).not.toHaveBeenCalled();
     });
 
-    it("throws if master password provided is falsey", async () => {
+    it("delegates validation to SDK when master password is falsey", async () => {
       await expect(
         keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData("", "", mockUser),
-      ).rejects.toThrow();
+      ).resolves.toBeUndefined();
     });
 
-    it("throws if no private key is found", async () => {
+    it("does not require private key on SDK key rotation path", async () => {
       keyPair.next(null);
 
       await expect(
@@ -615,14 +608,16 @@ describe("KeyRotationService", () => {
           "mockMasterPassword1",
           mockUser,
         ),
-      ).rejects.toThrow();
+      ).resolves.toBeUndefined();
     });
 
-    it("throws if server rotation fails", async () => {
+    it("throws if SDK rotation fails", async () => {
       KeyRotationTrustInfoComponent.open = initialPromptedOpenTrue;
       EmergencyAccessTrustComponent.open = emergencyAccessTrustOpenTrusted;
       AccountRecoveryTrustComponent.open = accountRecoveryTrustOpenTrusted;
-      mockApiService.postUserKeyUpdate.mockRejectedValueOnce(new Error("mockError"));
+      mockSdkUserKeyRotationService.changePasswordAndRotateUserKey.mockRejectedValueOnce(
+        new Error("mockError"),
+      );
 
       await expect(
         keyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
@@ -1197,7 +1192,7 @@ describe("KeyRotationService", () => {
   });
 
   describe("getRotatedAccountKeysFlagged", () => {
-    const userId = "mockUserId" as UserId;
+    const userId = "00000000-0000-0000-0000-000000000001" as UserId;
     const kdfConfig = new PBKDF2KdfConfig(100000);
     const masterKeySalt = "mockSalt";
     const v1Params = {
