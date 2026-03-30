@@ -113,6 +113,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
+  protected readonly sharedUnlockDescriptionKey: string;
   protected readonly loading = signal(true);
 
   form = this.formBuilder.group({
@@ -165,6 +166,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     private sharedUnlockSettingsService: SharedUnlockSettingsService,
   ) {
+    this.sharedUnlockDescriptionKey = this.getSharedUnlockDescriptionKey();
+
     this.multiClientPasswordManagement$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM32413_MultiClientPasswordManagement,
     );
@@ -172,6 +175,18 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     // Check if user phishing detection available
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
     this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(FeatureFlag.SharedUnlock);
+  }
+
+  private getSharedUnlockDescriptionKey(): string {
+    if (this.platformUtilsService.isSafari()) {
+      return "sharedUnlockDescriptionSafari";
+    }
+
+    if (this.platformUtilsService.isFirefox()) {
+      return "sharedUnlockDescriptionFirefox";
+    }
+
+    return "sharedUnlockDescription";
   }
 
   async ngOnInit() {
