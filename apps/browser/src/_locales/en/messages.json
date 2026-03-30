@@ -6116,7 +6116,7 @@
     "message": "Set an unlock method to change your timeout action"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Session timeout is controlled by the browser extension"
+    "message": "This setting is being managed by the Bitwarden desktop app"
   },
   "upgrade": {
     "message": "Upgrade"
