@@ -70,10 +70,8 @@ export class InitService {
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
       void (await (async () => {
-        // block 2 seconds
-        await new Promise((resolve) => setTimeout(resolve, 2000));
         await this.ipcService.init();
-        if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockBrowserWeb)) {
+        if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock)) {
           await this.sharedUnlockFollowerService.start();
         }
       })());
