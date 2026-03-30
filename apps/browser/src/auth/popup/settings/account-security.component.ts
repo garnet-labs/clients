@@ -113,7 +113,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
   biometricUnavailabilityReason: string;
   showChangeMasterPass = true;
   pinEnabled$: Observable<boolean> = of(true);
-  protected readonly sharedUnlockDescriptionKey: string;
+  readonly sharedUnlockDescriptionKey: string;
   protected readonly loading = signal(true);
 
   form = this.formBuilder.group({
