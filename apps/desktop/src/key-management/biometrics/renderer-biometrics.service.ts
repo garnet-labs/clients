@@ -8,9 +8,6 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus } from "@bitwarden/key-management";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
-import { IpcService } from "@bitwarden/common/platform/ipc";
-import { createBiometricsDriver } from "@bitwarden/common/key-management/shared-unlock";
-import { ipcRegisterBiometricsHandlers } from "@bitwarden/sdk-internal";
 
 /**
  * This service implement the base biometrics service to provide desktop specific functions,
@@ -18,10 +15,8 @@ import { ipcRegisterBiometricsHandlers } from "@bitwarden/sdk-internal";
  */
 @Injectable()
 export class RendererBiometricsService extends DesktopBiometricsService {
-  constructor(private tokenService: TokenService, private ipcService: IpcService) {
+  constructor(private tokenService: TokenService) {
     super();
-    const driver = createBiometricsDriver(this);
-    void ipcRegisterBiometricsHandlers(this.ipcService.client, driver);
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {

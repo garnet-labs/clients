@@ -926,6 +926,8 @@ export default class MainBackground {
       this.messagingService,
       this.vaultTimeoutSettingsService,
       this.pinService,
+      this.configService,
+      this.ipcService,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();

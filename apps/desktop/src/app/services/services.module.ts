@@ -203,12 +203,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: BiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService, IpcService],
+    deps: [TokenService],
   }),
   safeProvider({
     provide: DesktopBiometricsService,
     useClass: RendererBiometricsService,
-    deps: [TokenService, IpcService],
+    deps: [TokenService],
   }),
   safeProvider(NativeMessagingService),
   safeProvider(BiometricMessageHandlerService),
@@ -374,6 +374,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       DesktopBiometricsService,
       AccountCryptographicStateService,
+      IpcService,
     ],
   }),
   safeProvider({

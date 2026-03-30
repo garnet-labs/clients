@@ -18,6 +18,9 @@ import {
 } from "@bitwarden/key-management";
 
 import { DesktopBiometricsService } from "./biometrics/desktop.biometrics.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
+import { createBiometricsDriver } from "@bitwarden/common/key-management/shared-unlock";
+import { ipcRegisterBiometricsHandlers } from "@bitwarden/sdk-internal";
 
 // TODO Remove this class once biometric client key half storage is moved https://bitwarden.atlassian.net/browse/PM-22342
 export class ElectronKeyService extends DefaultKeyService {
@@ -35,6 +38,7 @@ export class ElectronKeyService extends DefaultKeyService {
     kdfConfigService: KdfConfigService,
     private biometricService: DesktopBiometricsService,
     accountCryptographicStateService: AccountCryptographicStateService,
+    private ipcService: IpcService,
   ) {
     super(
       masterPasswordService,
@@ -49,6 +53,12 @@ export class ElectronKeyService extends DefaultKeyService {
       kdfConfigService,
       accountCryptographicStateService,
     );
+
+    void (async () => {
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      const driver = createBiometricsDriver(biometricService, this);
+      await ipcRegisterBiometricsHandlers(this.ipcService.client, driver);
+    })();
   }
 
   protected override async storeAdditionalKeys(key: UserKey, userId: UserId) {
