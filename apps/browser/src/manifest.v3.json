@@ -61,7 +61,8 @@
     "webNavigation",
     "webRequest",
     "webRequestAuthProvider",
-    "notifications"
+    "notifications",
+    "nativeMessaging"
   ],
   "__firefox__permissions": [
     "activeTab",
@@ -77,7 +78,8 @@
     "webNavigation",
     "webRequest",
     "webRequestAuthProvider",
-    "notifications"
+    "notifications",
+    "nativeMessaging"
   ],
   "__safari__permissions": [
     "activeTab",
@@ -96,8 +98,8 @@
     "webRequest",
     "webRequestAuthProvider"
   ],
-  "optional_permissions": ["nativeMessaging", "privacy"],
-  "__firefox__optional_permissions": ["nativeMessaging"],
+  "optional_permissions": ["privacy"],
+  "__firefox__optional_permissions": null,
   "__safari__optional_permissions": null,
   "host_permissions": ["https://*/*", "http://*/*"],
   "content_security_policy": {
