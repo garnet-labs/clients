@@ -585,7 +585,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
     if (multiClientPasswordManagementFlagEnabled) {
-      await this.router.navigate(["/" + AuthExtensionRoute.ChangePassword]);
+      await this.router.navigate(["/" + AuthExtensionRoute.SettingsPassword]);
       return;
     }
 
