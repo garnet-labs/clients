@@ -1682,10 +1682,8 @@ export default class MainBackground {
 
     await this.initOverlayAndTabsBackground();
     await this.ipcService.init();
-    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockBrowserWeb)) {
+    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock)) {
       await this.sharedUnlockLeaderService.start();
-    }
-    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockDesktopBrowser)) {
       await this.sharedUnlockFollowerService.start();
     }
     this.badgeService.startListening();

@@ -122,8 +122,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     biometric: false,
     enableAutoBiometricsPrompt: true,
     enablePhishingDetection: true,
-    allowIntegrateWithWebApp: false,
-    allowIntegrateWithDesktopApp: false,
+    allowSharingUnlockState: true,
   });
 
   protected showAccountSecurityNudge$: Observable<boolean> =
@@ -135,9 +134,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
   protected readonly phishingDetectionAvailable$: Observable<boolean>;
-  protected readonly sharedUnlockDesktopBrowserEnabled$: Observable<boolean>;
-  protected readonly sharedUnlockBrowserWebEnabled$: Observable<boolean>;
-  protected readonly sharedUnlockEnabled$: Observable<boolean>;
+  protected readonly sharedUnlockFeatureEnabled$: Observable<boolean>;
   protected readonly multiClientPasswordManagement$: Observable<boolean>;
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
@@ -175,16 +172,9 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
     // Check if user phishing detection available
     this.phishingDetectionAvailable$ = this.phishingDetectionSettingsService.available$;
-    this.sharedUnlockDesktopBrowserEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.SharedUnlockDesktopBrowser,
+    this.sharedUnlockFeatureEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.SharedUnlock,
     );
-    this.sharedUnlockBrowserWebEnabled$ = this.configService.getFeatureFlag$(
-      FeatureFlag.SharedUnlockBrowserWeb,
-    );
-    this.sharedUnlockEnabled$ = combineLatest([
-      this.sharedUnlockDesktopBrowserEnabled$,
-      this.sharedUnlockBrowserWebEnabled$,
-    ]).pipe(map(([desktop, web]) => desktop || web));
   }
 
   async ngOnInit() {
@@ -213,11 +203,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         this.biometricStateService.promptAutomatically$,
       ),
       enablePhishingDetection: await firstValueFrom(this.phishingDetectionSettingsService.enabled$),
-      allowIntegrateWithWebApp: await firstValueFrom(
-        this.sharedUnlockSettingsService.allowIntegrateWithWebApp$(activeAccount.id),
-      ),
-      allowIntegrateWithDesktopApp: await firstValueFrom(
-        this.sharedUnlockSettingsService.allowIntegrateWithDesktopApp$(activeAccount.id),
+      allowSharingUnlockState: await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockState$(activeAccount.id),
       ),
     };
     this.form.patchValue(initialValues, { emitEvent: false });
@@ -328,21 +315,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.form.controls.allowIntegrateWithWebApp.valueChanges
+    this.form.controls.allowSharingUnlockState.valueChanges
       .pipe(
         concatMap(async (enabled) => {
           const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-          await this.sharedUnlockSettingsService.setAllowIntegrateWithWebApp(enabled, userId);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
-
-    this.form.controls.allowIntegrateWithDesktopApp.valueChanges
-      .pipe(
-        distinctUntilChanged(),
-        concatMap(async (enabled) => {
-          await this.updateDesktopIntegration(enabled);
+          await this.sharedUnlockSettingsService.setAllowSharingUnlockState(enabled, userId);
         }),
         takeUntil(this.destroy$),
       )
@@ -558,7 +535,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
               type: "info",
             });
 
-            this.form.controls.allowIntegrateWithDesktopApp.setValue(false, { emitEvent: false });
+            this.form.controls.allowSharingUnlockState.setValue(false, { emitEvent: false });
             return;
           }
         }
@@ -573,13 +550,13 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
           type: "danger",
         });
 
-        this.form.controls.allowIntegrateWithDesktopApp.setValue(false, { emitEvent: false });
+        this.form.controls.allowSharingUnlockState.setValue(false, { emitEvent: false });
         return;
       }
 
-      await this.sharedUnlockSettingsService.setAllowIntegrateWithDesktopApp(true, userId);
+      await this.sharedUnlockSettingsService.setAllowSharingUnlockState(true, userId);
     } else {
-      await this.sharedUnlockSettingsService.setAllowIntegrateWithDesktopApp(false, userId);
+      await this.sharedUnlockSettingsService.setAllowSharingUnlockState(false, userId);
       await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
     }
   }

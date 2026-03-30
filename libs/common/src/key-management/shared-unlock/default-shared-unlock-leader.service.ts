@@ -1,6 +1,5 @@
 import { firstValueFrom } from "rxjs";
 
-import { ClientType } from "@bitwarden/client-type";
 import { LockService } from "@bitwarden/auth/common";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -94,12 +93,6 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
   }
 
   private async enabled(userId: UserId): Promise<boolean> {
-    if (this.platformUtilsService.getClientType() === ClientType.Desktop) {
-      return await this.sharedUnlockSettingsService.allowIntegrateWithBrowserExtension(userId);
-    }
-    if (this.platformUtilsService.getClientType() === ClientType.Browser) {
-      return await this.sharedUnlockSettingsService.allowIntegrateWithWebApp(userId);
-    }
-    return true;
+    return await this.sharedUnlockSettingsService.allowSharingUnlockState(userId);
   }
 }

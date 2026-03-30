@@ -6221,11 +6221,8 @@
   "sharedUnlock": {
     "message": "Shared unlock"
   },
-  "unlockTogetherWithWebApp": {
-    "message": "Unlock together with the web app"
-  },
-  "unlockTogetherWithDesktopApp": {
-    "message": "Unlock together with the desktop app"
+  "sharedUnlockDescription": {
+    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
   },
   "downloadFailed": {
     "message": "Failed to download."

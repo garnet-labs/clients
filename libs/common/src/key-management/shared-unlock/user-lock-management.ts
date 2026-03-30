@@ -27,6 +27,7 @@ export function createUserLockManagement(
 ): UserLockManagement {
   return {
     async lock_user(user_id: UserId): Promise<void> {
+      console.log("Locking user", user_id);
       if (!(await enabled(sharedUnlockSettingsService, platformUtilsService, isFollower, uuidAsString(user_id) as TSUserId))) {
         return;
       }
@@ -34,6 +35,7 @@ export function createUserLockManagement(
       await lockService.lock(uuidAsString(user_id) as TSUserId);
     },
     async unlock_user(user_id: UserId, key: Uint8Array): Promise<void> {
+      console.log("Unlocking user", user_id);
       if (!(await enabled(sharedUnlockSettingsService, platformUtilsService, isFollower, uuidAsString(user_id) as TSUserId))) {
         return;
       }
@@ -67,19 +69,5 @@ export function createUserLockManagement(
 }
 
 async function enabled(sharedUnlockSettingsService: SharedUnlockSettingsService, platformUtilsService: PlatformUtilsService, isFollower: boolean, userId: TSUserId): Promise<boolean> {
-  if (platformUtilsService.getClientType() === ClientType.Browser) {
-    if (isFollower) {
-      return await sharedUnlockSettingsService.allowIntegrateWithDesktopApp(userId);
-    } else {
-      return await sharedUnlockSettingsService.allowIntegrateWithWebApp(userId);
-    }
-  } else if (platformUtilsService.getClientType() === ClientType.Desktop) {
-    if (isFollower) {
-      return await sharedUnlockSettingsService.allowIntegrateWithBrowserExtension(userId);
-    } else {
-      return false;
-    }
-  } else {
-    return true;
-  }
+  return await sharedUnlockSettingsService.allowSharingUnlockState(userId)
 }

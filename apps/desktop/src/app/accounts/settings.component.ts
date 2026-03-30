@@ -20,7 +20,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DeviceType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { SharedUnlockSettingsService } from "@bitwarden/common/key-management/shared-unlock";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -107,7 +106,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   showEnableAutotype = false;
-  showSharedUnlock = false;
   autotypeShortcut: string;
   showOpenAtLoginOption = false;
   isWindows: boolean;
@@ -156,7 +154,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
-    allowIntegrateWithBrowserExtension: false,
     enableDuckDuckGoBrowserIntegration: false,
     enableAutotype: this.formBuilder.control<boolean>({
       value: false,
@@ -196,7 +193,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private validationService: ValidationService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private sharedUnlockSettingsService: SharedUnlockSettingsService,
   ) {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
@@ -280,13 +276,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         });
     }
 
-    this.configService
-      .getFeatureFlag$(FeatureFlag.SharedUnlockDesktopBrowser)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((enabled) => {
-        this.showSharedUnlock = enabled;
-      });
-
     this.userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
 
     this.currentUserEmail = activeAccount.email;
@@ -322,9 +311,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       startToTray: await firstValueFrom(this.desktopSettingsService.startToTray$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
       alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
-      allowIntegrateWithBrowserExtension: await firstValueFrom(
-        this.sharedUnlockSettingsService.allowIntegrateWithBrowserExtension$(activeAccount.id),
-      ),
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
         this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
       ),
@@ -632,13 +618,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // TODO: Ideally DesktopSettingsService.openAtLogin$ could be subscribed to directly rather than sending a message
     this.messagingService.send(
       this.form.value.openAtLogin ? "addOpenAtLogin" : "removeOpenAtLogin",
-    );
-  }
-
-  async saveAllowIntegrateWithBrowserExtension() {
-    await this.sharedUnlockSettingsService.setAllowIntegrateWithBrowserExtension(
-      this.form.value.allowIntegrateWithBrowserExtension,
-      this.currentUserId,
     );
   }
 

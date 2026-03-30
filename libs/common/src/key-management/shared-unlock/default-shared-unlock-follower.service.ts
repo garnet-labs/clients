@@ -97,12 +97,6 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
   }
 
   private async enabled(userId: UserId): Promise<boolean> {
-    if (this.platformUtilsService.getClientType() === ClientType.Desktop) {
-      return await this.sharedUnlockSettingsService.allowIntegrateWithBrowserExtension(userId);
-    }
-    if (this.platformUtilsService.getClientType() === ClientType.Browser) {
-      return await this.sharedUnlockSettingsService.allowIntegrateWithWebApp(userId);
-    }
-    return true;
+    return await this.sharedUnlockSettingsService.allowSharingUnlockState(userId);
   }
 }

@@ -9,27 +9,9 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
 
-const ALLOW_INTEGRATE_WITH_WEB_APP = new UserKeyDefinition<boolean>(
+const ALLOW_SHARING_UNLOCK_STATE = new UserKeyDefinition<boolean>(
   SHARED_UNLOCK_SETTINGS_DISK,
-  "allowIntegrateWithWebApp",
-  {
-    deserializer: (b) => b,
-    clearOn: ["logout"],
-  },
-);
-
-const ALLOW_INTEGRATE_WITH_DESKTOP_APP = new UserKeyDefinition<boolean>(
-  SHARED_UNLOCK_SETTINGS_DISK,
-  "allowIntegrateWithDesktopApp",
-  {
-    deserializer: (b) => b,
-    clearOn: ["logout"],
-  },
-);
-
-const ALLOW_INTEGRATE_WITH_BROWSER_EXTENSION = new UserKeyDefinition<boolean>(
-  SHARED_UNLOCK_SETTINGS_DISK,
-  "allowIntegrateWithBrowserExtension",
+  "allowSharingUnlockState",
   {
     deserializer: (b) => b,
     clearOn: ["logout"],
@@ -41,53 +23,21 @@ export class DefaultSharedUnlockSettingsService extends SharedUnlockSettingsServ
     super();
   }
 
-  async setAllowIntegrateWithWebApp(value: boolean, userId: UserId) {
-    await this.stateProvider.getUser(userId, ALLOW_INTEGRATE_WITH_WEB_APP).update(() => value);
+  async setAllowSharingUnlockState(value: boolean, userId: UserId) {
+    await this.stateProvider.getUser(userId, ALLOW_SHARING_UNLOCK_STATE).update(() => value);
   }
 
-  async setAllowIntegrateWithDesktopApp(value: boolean, userId: UserId) {
-    await this.stateProvider.getUser(userId, ALLOW_INTEGRATE_WITH_DESKTOP_APP).update(() => value);
-  }
-
-  async setAllowIntegrateWithBrowserExtension(value: boolean, userId: UserId) {
-    await this.stateProvider
-      .getUser(userId, ALLOW_INTEGRATE_WITH_BROWSER_EXTENSION)
-      .update(() => value);
-  }
-
-  allowIntegrateWithWebApp$(userId: UserId): Observable<boolean> {
-    return this.stateProvider.getUserState$(ALLOW_INTEGRATE_WITH_WEB_APP, userId).pipe(
-      map((v) => v ?? false),
-    );
-  }
-  
-  allowIntegrateWithDesktopApp$(userId: UserId): Observable<boolean> {
-    return this.stateProvider.getUserState$(ALLOW_INTEGRATE_WITH_DESKTOP_APP, userId).pipe(
-      map((v) => v ?? false),
-    );
-  }
-  
-  allowIntegrateWithBrowserExtension$(userId: UserId): Observable<boolean> {
-    return this.stateProvider
-      .getUserState$(ALLOW_INTEGRATE_WITH_BROWSER_EXTENSION, userId)
-      .pipe(map((v) => v ?? false));
-  }
-
-  async allowIntegrateWithWebApp(userId: UserId): Promise<boolean> {
-    return (await firstValueFrom(this.stateProvider.getUserState$(ALLOW_INTEGRATE_WITH_WEB_APP, userId))) ?? false;
-  }
-
-  async allowIntegrateWithDesktopApp(userId: UserId): Promise<boolean> {
-    return (
-      (await firstValueFrom(this.stateProvider.getUserState$(ALLOW_INTEGRATE_WITH_DESKTOP_APP, userId))) ?? false
+  allowSharingUnlockState$(userId: UserId): Observable<boolean> {
+    return this.stateProvider.getUserState$(ALLOW_SHARING_UNLOCK_STATE, userId).pipe(
+      map((v) => v ?? true),
     );
   }
 
-  async allowIntegrateWithBrowserExtension(userId: UserId): Promise<boolean> {
+  async allowSharingUnlockState(userId: UserId): Promise<boolean> {
     return (
       (await firstValueFrom(
-        this.stateProvider.getUserState$(ALLOW_INTEGRATE_WITH_BROWSER_EXTENSION, userId),
-      )) ?? false
+        this.stateProvider.getUserState$(ALLOW_SHARING_UNLOCK_STATE, userId),
+      )) ?? true
     );
   }
 }
