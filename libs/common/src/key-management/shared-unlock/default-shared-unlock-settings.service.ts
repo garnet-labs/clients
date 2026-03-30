@@ -28,9 +28,9 @@ export class DefaultSharedUnlockSettingsService extends SharedUnlockSettingsServ
   }
 
   allowSharingUnlockState$(userId: UserId): Observable<boolean> {
-    return this.stateProvider.getUserState$(ALLOW_SHARING_UNLOCK_STATE, userId).pipe(
-      map((v) => v ?? true),
-    );
+    return this.stateProvider
+      .getUserState$(ALLOW_SHARING_UNLOCK_STATE, userId)
+      .pipe(map((v) => v ?? true));
   }
 
   async allowSharingUnlockState(userId: UserId): Promise<boolean> {

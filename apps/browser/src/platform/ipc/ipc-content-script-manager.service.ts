@@ -1,6 +1,5 @@
-import { mergeMap,of } from "rxjs";
+import { mergeMap, of } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { BrowserApi } from "../browser/browser-api";

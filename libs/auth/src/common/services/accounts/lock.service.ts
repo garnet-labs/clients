@@ -30,9 +30,7 @@ export abstract class LockService {
    */
   abstract lock(userId: UserId): Promise<void>;
 
-  abstract runPlatformOnLockActions(
-    userId: UserId
-  ): Promise<void>;
+  abstract runPlatformOnLockActions(userId: UserId): Promise<void>;
   abstract registerOnLockAction(action: (userId: UserId) => Promise<void>): void;
 }
 
@@ -160,9 +158,7 @@ export class DefaultLockService implements LockService {
     );
   }
 
-  async runPlatformOnLockActions(
-    userId: UserId
-  ): Promise<void> {
+  async runPlatformOnLockActions(userId: UserId): Promise<void> {
     for (const action of this.onLockActions) {
       await action(userId);
     }

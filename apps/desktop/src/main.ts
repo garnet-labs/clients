@@ -5,7 +5,7 @@ import "core-js/proposals/explicit-resource-management";
 import * as path from "path";
 
 import { app } from "electron";
-import { Subject, concatMap, firstValueFrom, skip } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
@@ -16,6 +16,7 @@ import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc";
@@ -68,8 +69,6 @@ import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-c
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -381,17 +380,14 @@ export class Main {
         this.powerMonitorMain.init();
         await this.updaterMain.init();
 
-        const [browserIntegrationEnabled, ddgIntegrationEnabled] =
-          await Promise.all([
-            firstValueFrom(this.desktopSettingsService.browserIntegrationEnabled$),
-            firstValueFrom(this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$),
-          ]);
+        const [ddgIntegrationEnabled] = await Promise.all([
+          firstValueFrom(this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$),
+        ]);
 
         try {
           // Re-register the native messaging host integrations on startup, in case they are not present
           if (ddgIntegrationEnabled) {
-            await this.nativeMessagingMain
-              .generateDdgManifests()
+            await this.nativeMessagingMain.generateDdgManifests();
           }
 
           // Start native messaging when shared unlock is enabled at runtime

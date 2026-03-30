@@ -55,7 +55,7 @@ export abstract class VaultTimeoutSettingsService {
    * @returns boolean true if biometric lock is set
    */
   abstract isBiometricLockSet(userId?: UserId): Promise<boolean>;
-  
+
   /**
    * Observable that emits the epoch timestamp (ms) until which vault timeout is suppressed,
    * or null when not suppressed. Used by shared unlock to prevent timeout during active sessions.

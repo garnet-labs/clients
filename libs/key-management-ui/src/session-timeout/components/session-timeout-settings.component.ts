@@ -130,9 +130,9 @@ export class SessionTimeoutSettingsComponent implements OnInit {
   );
   protected readonly isTimeoutSuppressed = toSignal(
     this.accountService.activeAccount$.pipe(
-       getUserId,
-       switchMap((userId) => this.vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$(userId)),
-       map((until) => until != null && Date.now() < until),
+      getUserId,
+      switchMap((userId) => this.vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$(userId)),
+      map((until) => until != null && Date.now() < until),
     ),
     { initialValue: false },
   );
@@ -192,7 +192,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
             this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(this.userId),
             this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(this.userId),
             this.sessionTimeoutActionFromPolicy$,
-            this.vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$(this.userId)
+            this.vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$(this.userId),
           ]),
         ),
         takeUntilDestroyed(this.destroyRef),
@@ -238,7 +238,6 @@ export class SessionTimeoutSettingsComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
-
   }
 
   async saveTimeout(previousValue: VaultTimeout, newValue: VaultTimeout) {

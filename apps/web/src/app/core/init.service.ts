@@ -5,9 +5,9 @@ import { AbstractThemingService } from "@bitwarden/angular/platform/services/the
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
@@ -69,14 +69,14 @@ export class InitService {
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
-      void await (async () => {
+      void (await (async () => {
         // block 2 seconds
         await new Promise((resolve) => setTimeout(resolve, 2000));
         await this.ipcService.init();
         if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockBrowserWeb)) {
           await this.sharedUnlockFollowerService.start();
         }
-      })();
+      })());
 
       this.taskService.listenForTaskNotifications();
 

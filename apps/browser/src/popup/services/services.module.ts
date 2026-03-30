@@ -91,11 +91,11 @@ import {
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
-import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,

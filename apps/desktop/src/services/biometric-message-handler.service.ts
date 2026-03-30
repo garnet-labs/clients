@@ -1,5 +1,5 @@
-import { Injectable, NgZone } from "@angular/core";
-import { combineLatest, concatMap, firstValueFrom } from "rxjs";
+import { Injectable } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -10,17 +10,13 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
-import { BiometricsCommands, BiometricsStatus, KeyService } from "@bitwarden/key-management";
+import { BiometricsCommands, BiometricsStatus } from "@bitwarden/key-management";
 
-import { BrowserSyncVerificationDialogComponent } from "../app/components/browser-sync-verification-dialog.component";
 import { DesktopBiometricsService } from "../key-management/biometrics/desktop.biometrics.service";
 import { LegacyMessage, LegacyMessageWrapper } from "../models/native-messaging";
-import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
 const MessageValidTimeout = 10 * 1000;
 const HashAlgorithmForAsymmetricEncryption = "sha1";
@@ -79,8 +75,7 @@ export class BiometricMessageHandlerService {
     private accountService: AccountService,
     private authService: AuthService,
     private configService: ConfigService,
-  ) {
-  }
+  ) {}
 
   private connectedApps: ConnectedApps = new ConnectedApps();
 

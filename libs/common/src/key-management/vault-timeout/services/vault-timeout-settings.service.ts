@@ -61,8 +61,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     private logService: LogService,
     private defaultVaultTimeout: VaultTimeout,
     private sessionTimeoutTypeService: SessionTimeoutTypeService,
-  ) {
-  }
+  ) {}
 
   async setVaultTimeoutOptions(
     userId: UserId,
@@ -375,9 +374,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       throw new Error("User id required. Cannot suppress vault timeout.");
     }
 
-    await this.stateProvider
-      .getUser(userId, VAULT_TIMEOUT_SUPPRESSED_UNTIL)
-      .update(() => until);
+    await this.stateProvider.getUser(userId, VAULT_TIMEOUT_SUPPRESSED_UNTIL).update(() => until);
   }
 
   async clearVaultTimeoutSuppression(userId: UserId): Promise<void> {
@@ -385,8 +382,6 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       throw new Error("User id required. Cannot clear vault timeout suppression.");
     }
 
-    await this.stateProvider
-      .getUser(userId, VAULT_TIMEOUT_SUPPRESSED_UNTIL)
-      .update(() => null);
+    await this.stateProvider.getUser(userId, VAULT_TIMEOUT_SUPPRESSED_UNTIL).update(() => null);
   }
 }

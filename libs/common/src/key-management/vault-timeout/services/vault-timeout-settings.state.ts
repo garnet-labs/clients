@@ -1,5 +1,4 @@
 import {
-  KeyDefinition,
   UserKeyDefinition,
   VAULT_TIMEOUT_SETTINGS_DISK_LOCAL,
   VAULT_TIMEOUT_SETTINGS_MEMORY,
@@ -36,6 +35,6 @@ export const VAULT_TIMEOUT_SUPPRESSED_UNTIL = new UserKeyDefinition<number | nul
   "vaultTimeoutSuppressedUntil",
   {
     deserializer: (value) => value,
-    clearOn: ["logout"], 
+    clearOn: ["logout"],
   },
 );

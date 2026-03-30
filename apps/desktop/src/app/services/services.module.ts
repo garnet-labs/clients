@@ -171,13 +171,13 @@ import { ElectronRendererMessageSender } from "../../platform/services/electron-
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import { IpcRendererService } from "../../platform/services/ipc-renderer.service";
 import {
   DefaultServerCommunicationConfigService,
   ServerCommunicationConfigPlatformApiService,
   ServerCommunicationConfigRepository,
 } from "../../platform/services/server-communication-config";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
-import { IpcRendererService } from "../../platform/services/ipc-renderer.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";

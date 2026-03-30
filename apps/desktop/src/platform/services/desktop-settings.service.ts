@@ -163,7 +163,9 @@ export class DesktopSettingsService {
   /**
    * The application setting for whether or not the browser integration is enabled.
    */
-  browserIntegrationEnabled$ = this.browserIntegrationEnabledState.state$.pipe(map((v) => v ?? true));
+  browserIntegrationEnabled$ = this.browserIntegrationEnabledState.state$.pipe(
+    map((v) => v ?? true),
+  );
 
   private readonly browserIntegrationFingerprintEnabledState = this.stateProvider.getGlobal(
     BROWSER_INTEGRATION_FINGERPRINT_ENABLED,

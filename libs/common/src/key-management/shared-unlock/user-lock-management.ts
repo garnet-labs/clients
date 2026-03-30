@@ -1,9 +1,11 @@
 import { firstValueFrom } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
 import { LockService } from "@bitwarden/auth/common";
 import { ClientType } from "@bitwarden/client-type";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId as TSUserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { UserId, UserLockManagement } from "@bitwarden/sdk-internal";
 
@@ -13,6 +15,7 @@ import { asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.servic
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "../../types/key";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
+
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
 
 export function createUserLockManagement(
@@ -27,16 +30,28 @@ export function createUserLockManagement(
 ): UserLockManagement {
   return {
     async lock_user(user_id: UserId): Promise<void> {
-      console.log("Locking user", user_id);
-      if (!(await enabled(sharedUnlockSettingsService, platformUtilsService, isFollower, uuidAsString(user_id) as TSUserId))) {
+      if (
+        !(await enabled(
+          sharedUnlockSettingsService,
+          platformUtilsService,
+          isFollower,
+          uuidAsString(user_id) as TSUserId,
+        ))
+      ) {
         return;
       }
 
       await lockService.lock(uuidAsString(user_id) as TSUserId);
     },
     async unlock_user(user_id: UserId, key: Uint8Array): Promise<void> {
-      console.log("Unlocking user", user_id);
-      if (!(await enabled(sharedUnlockSettingsService, platformUtilsService, isFollower, uuidAsString(user_id) as TSUserId))) {
+      if (
+        !(await enabled(
+          sharedUnlockSettingsService,
+          platformUtilsService,
+          isFollower,
+          uuidAsString(user_id) as TSUserId,
+        ))
+      ) {
         return;
       }
 
@@ -54,7 +69,10 @@ export function createUserLockManagement(
       return Object.keys(accounts).map(asUuid<UserId>);
     },
     async suppress_vault_timeout(until: number, userId: UserId): Promise<void> {
-      await vaultTimeoutSettingsService.suppressVaultTimeout(until, uuidAsString(userId) as TSUserId);
+      await vaultTimeoutSettingsService.suppressVaultTimeout(
+        until,
+        uuidAsString(userId) as TSUserId,
+      );
     },
     async get_client_name(): Promise<ClientType> {
       return platformUtilsService.getClientType();
@@ -68,6 +86,11 @@ export function createUserLockManagement(
   };
 }
 
-async function enabled(sharedUnlockSettingsService: SharedUnlockSettingsService, platformUtilsService: PlatformUtilsService, isFollower: boolean, userId: TSUserId): Promise<boolean> {
-  return await sharedUnlockSettingsService.allowSharingUnlockState(userId)
+async function enabled(
+  sharedUnlockSettingsService: SharedUnlockSettingsService,
+  platformUtilsService: PlatformUtilsService,
+  isFollower: boolean,
+  userId: TSUserId,
+): Promise<boolean> {
+  return await sharedUnlockSettingsService.allowSharingUnlockState(userId);
 }

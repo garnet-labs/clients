@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, timeout } from "rxjs";
 
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { BiometricStateService } from "@bitwarden/key-management";
@@ -18,7 +19,6 @@ import { MessagingService } from "../../platform/abstractions/messaging.service"
 import { UserId } from "../../types/guid";
 import { ProcessReloadServiceAbstraction } from "../abstractions/process-reload.service";
 import { PinServiceAbstraction } from "../pin/pin.service.abstraction";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 export class DefaultProcessReloadService implements ProcessReloadServiceAbstraction {
   private reloadInterval: any = null;
@@ -37,14 +37,10 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
 
   async startProcessReload(): Promise<void> {
     if (this.platformUtilsService.isDev()) {
-      this.logService.info(
-        "[Process Reload Service] Process reload prevented in dev environment",
-      );
+      this.logService.info("[Process Reload Service] Process reload prevented in dev environment");
       return;
     } else {
-      this.logService.info(
-        "[Process Reload Service] Is not dev",
-      );
+      this.logService.info("[Process Reload Service] Is not dev");
     }
 
     const accounts = await firstValueFrom(this.accountService.accounts$);
