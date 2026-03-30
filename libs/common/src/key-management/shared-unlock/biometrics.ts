@@ -9,20 +9,25 @@ export function createBiometricsDriver(
     keyService: KeyService
 ): BiometricsUnlock {
   return {
-    get_biometrics_status: async (user_id: UserId) => {
+    async get_biometrics_status(user_id: UserId): Promise<SdkBiometricsStatus> {
+      console.log("Getting biometrics status for user", user_id);
       const status = await biometricsService.getBiometricsStatusForUser(uuidAsString(user_id) as TSUserId);
+      console.log("Biometrics status for user", user_id, "is", status);
       switch (status) {
         case BiometricsStatus.Available:
-          return SdkBiometricsStatus.Available
+          console.log("returning available for user", user_id);
+          return SdkBiometricsStatus.Available;
         case BiometricsStatus.HardwareUnavailable:
           return SdkBiometricsStatus.HardwareUnavailable;
         case BiometricsStatus.NotEnabledLocally:
           return SdkBiometricsStatus.NotEnabled;
         case BiometricsStatus.UnlockNeeded:
           return SdkBiometricsStatus.UnlockNeeded;
+        default:
+          return SdkBiometricsStatus.NotEnabled;
       }
     },
-    unlock_biometrics: async (user_id: UserId) => {
+    async unlock_biometrics(user_id: UserId) {
       const key = await biometricsService.unlockWithBiometricsForUser(uuidAsString(user_id) as TSUserId);
       console.log("Biometrics unlock successful, setting user key");
       await keyService.setUserKey(key, uuidAsString(user_id) as TSUserId);

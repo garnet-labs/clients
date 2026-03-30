@@ -439,6 +439,12 @@ export class LockComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock) && this.platformUtilsService.getClientType() === ClientType.Browser) {
+      await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
+      this.unlockingViaBiometrics = false;
+      return;
+    }
+
     try {
       await this.biometricStateService.setUserPromptCancelled();
 

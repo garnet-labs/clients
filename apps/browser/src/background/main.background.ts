@@ -917,6 +917,14 @@ export default class MainBackground {
       this.sdkService,
       pinStateService,
     );
+    
+    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
+    const ipcSessionRepository = new IpcSessionRepository(this.stateProvider);
+    this.ipcService = new IpcBackgroundService(
+      this.platformUtilsService,
+      this.logService,
+      ipcSessionRepository,
+    );
 
     this.biometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,
@@ -1573,13 +1581,6 @@ export default class MainBackground {
       messageListener,
     );
 
-    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    const ipcSessionRepository = new IpcSessionRepository(this.stateProvider);
-    this.ipcService = new IpcBackgroundService(
-      this.platformUtilsService,
-      this.logService,
-      ipcSessionRepository,
-    );
     this.sharedUnlockSettingsService = new DefaultSharedUnlockSettingsService(this.stateProvider);
     this.sharedUnlockLeaderService = new DefaultSharedUnlockLeaderService(
       this.ipcService,

@@ -233,6 +233,7 @@ import { ExtensionAnonLayoutWrapperDataService } from "../components/extension-a
 import { DebounceNavigationService } from "./debounce-navigation.service";
 import { InitService } from "./init.service";
 import { PopupCloseWarningService } from "./popup-close-warning.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 
 const OBSERVABLE_LARGE_OBJECT_MEMORY_STORAGE = new SafeInjectionToken<
   AbstractStorageService & ObservableStorageService

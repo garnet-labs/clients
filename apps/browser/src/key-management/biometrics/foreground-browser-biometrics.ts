@@ -5,11 +5,23 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsCommands, BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
+import {
+  ipcRequestGetBiometricsStatus,
+  ipcRequestUnlockBiometrics,
+  type UserId as SdkUserId,
+  BiometricsStatus as SdkBiometricsStatus,
+} from "@bitwarden/sdk-internal";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { LogService } from "@bitwarden/logging";
 
 export class ForegroundBrowserBiometricsService extends BiometricsService {
   shouldAutopromptNow = true;
 
-  constructor(private platformUtilsService: PlatformUtilsService) {
+  constructor(private platformUtilsService: PlatformUtilsService,
+  ) {
     super();
   }
 

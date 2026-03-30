@@ -1,4 +1,4 @@
-import { Observable, firstValueFrom, map, combineLatest } from "rxjs";
+import { Observable, firstValueFrom, map, combineLatest, of } from "rxjs";
 
 import {
   EncryptedString,
@@ -144,6 +144,7 @@ export class DefaultBiometricStateService implements BiometricStateService {
   }
 
   biometricUnlockEnabled$(userId?: UserId): Observable<boolean> {
+    return of(true);
     if (userId != null) {
       return this.stateProvider.getUser(userId, BIOMETRIC_UNLOCK_ENABLED).state$.pipe(map(Boolean));
     }

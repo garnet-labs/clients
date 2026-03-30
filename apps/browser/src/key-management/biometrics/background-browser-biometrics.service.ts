@@ -105,7 +105,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       await ipcRequestUnlockBiometrics(this.ipcService.client, asUuid(userId));
       return null;
     }
-
     try {
       await this.ensureConnected();
 
@@ -155,7 +154,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
           default:
             return BiometricsStatus.DesktopDisconnected;
         }
-      } catch {
+      } catch (e) {
+        this.logService.info("Getting biometric status for user failed", e);
         return BiometricsStatus.DesktopDisconnected;
       }
     }
