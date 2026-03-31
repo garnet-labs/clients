@@ -84,7 +84,7 @@
               {{ "lockWithMasterPassOnRestart1" | i18n }}
             </bit-label>
           </bit-form-control>
-          <bit-form-control *ngIf="sharedUnlockFeatureEnabled$ | async">
+          <bit-form-control [disableMargin]="true" *ngIf="sharedUnlockFeatureEnabled$ | async">
             <input
               bitCheckbox
               id="allowSharingUnlockState"
