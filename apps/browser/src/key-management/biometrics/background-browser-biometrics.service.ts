@@ -33,7 +33,7 @@ import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/register-sdk
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;
-  private readonly IPC_REQUEST_TIMEOUT_MS = 5000;
+  private readonly IPC_REQUEST_TIMEOUT_MS = 2000;
 
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
