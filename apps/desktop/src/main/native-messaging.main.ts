@@ -443,7 +443,19 @@ export class NativeMessagingMain {
             for (const { command_name, extension } of Object.values(commands)) {
               if (command_name === "autofill_login" || command_name === "generate_password") {
                 ids.add(`chrome-extension://${extension}/`);
-                this.logService.info(`Found extension from ${chromePath}: ${extension}`);
+                this.logService.info(`Found extension from global commands ${chromePath}: ${extension}`);
+              }
+            }
+
+            const settings: Map<string, any> = prefs.extensions.settings;
+            for (const [extension, setting] of Object.entries(settings)) {
+              if (setting.commands) {
+                for (const [command_name, _command] of Object.entries(setting.commands)) {
+                  if (command_name === "autofill_login" || command_name === "generate_password") {
+                    ids.add(`chrome-extension://${extension}/`);
+                    this.logService.info(`Found extension from local commands ${chromePath}: ${extension}`);
+                  }
+                }
               }
             }
           } catch (e) {
