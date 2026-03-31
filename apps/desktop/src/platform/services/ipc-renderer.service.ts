@@ -8,7 +8,6 @@ import {
   IpcMessage,
   IpcService,
   isForwardedIpcMessage,
-  IpcSessionRepository,
 } from "@bitwarden/common/platform/ipc";
 import {
   IncomingMessage,
@@ -22,7 +21,6 @@ import {
 export class IpcRendererService extends IpcService {
   private logService = inject(LogService);
   private platformUtilsService = inject(PlatformUtilsService);
-  private sessionRepository = inject(IpcSessionRepository);
   private communicationBackend?: IpcCommunicationBackend;
 
   override async init() {
@@ -67,9 +65,7 @@ export class IpcRendererService extends IpcService {
         );
       });
 
-      await super.initWithClient(
-        IpcClient.newWithClientManagedSessions(this.communicationBackend, this.sessionRepository),
-      );
+      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
 
       if (this.platformUtilsService.isDev()) {
         await ipcRegisterDiscoverHandler(this.client, {

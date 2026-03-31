@@ -13,7 +13,6 @@ import {
   OutgoingMessage,
   ipcRegisterDiscoverHandler,
   IpcClient,
-  IpcSessionRepository,
   ipcRequestDiscover,
 } from "@bitwarden/sdk-internal";
 
@@ -32,7 +31,6 @@ export class IpcBackgroundService extends IpcService {
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
-    private sessionRepository: IpcSessionRepository,
   ) {
     super();
   }
@@ -138,9 +136,7 @@ export class IpcBackgroundService extends IpcService {
         );
       });
 
-      await super.initWithClient(
-        IpcClient.newWithClientManagedSessions(this.communicationBackend, this.sessionRepository),
-      );
+      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
 
       await ipcRegisterDiscoverHandler(this.client, {
         version: await this.platformUtilsService.getApplicationVersion(),

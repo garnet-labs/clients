@@ -19,7 +19,7 @@ import {
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { IpcService, IpcSessionRepository } from "@bitwarden/common/platform/ipc";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -318,7 +318,6 @@ export class Main {
       app,
       this.nativeMessagingMain,
       this.windowMain,
-      new IpcSessionRepository(stateProvider),
     );
 
     this.clipboardMain = new ClipboardMain();
