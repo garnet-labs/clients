@@ -26,7 +26,6 @@ export function createUserLockManagement(
   vaultTimeoutSettingsService: VaultTimeoutSettingsService,
   environmentService: EnvironmentService,
   sharedUnlockSettingsService: SharedUnlockSettingsService,
-  isFollower: boolean,
 ): UserLockManagement {
   return {
     async lock_user(user_id: UserId): Promise<void> {
