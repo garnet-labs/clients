@@ -20,6 +20,8 @@ import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 export class ExtensionLockComponentService implements LockComponentService {
   constructor(
@@ -29,6 +31,7 @@ export class ExtensionLockComponentService implements LockComponentService {
     private readonly biometricStateService: BiometricStateService,
     private readonly routerService: BrowserRouterService,
     private readonly webAuthnPrfUnlockService: WebAuthnPrfUnlockService,
+    private readonly configService: ConfigService,
   ) {}
 
   getPreviousUrl(): string | null {
@@ -68,11 +71,13 @@ export class ExtensionLockComponentService implements LockComponentService {
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
       // Check biometricUnlockEnabled$ first to avoid background native messaging & IPC calls when biometrics is disabled.
-      this.biometricStateService
-        .biometricUnlockEnabled$(userId)
+      combineLatest([
+        this.biometricStateService.biometricUnlockEnabled$(userId),
+        this.configService.getFeatureFlag$(FeatureFlag.SharedUnlock),
+      ])
         .pipe(
-          switchMap(async (enabled) =>
-            enabled
+          switchMap(async ([enabled, sharedUnlockEnabled]) =>
+            (enabled || sharedUnlockEnabled)
               ? await this.biometricsService.getBiometricsStatusForUser(userId)
               : BiometricsStatus.NotEnabledLocally,
           ),

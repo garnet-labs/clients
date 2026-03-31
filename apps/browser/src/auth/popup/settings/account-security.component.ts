@@ -527,48 +527,10 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     return setupResult;
   }
 
-  async updateDesktopIntegration(enabled: boolean) {
+  async updateAllowSharingUnlockState(enabled: boolean) {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    if (enabled) {
-      let granted = await BrowserApi.permissionsGranted(["nativeMessaging"]);
-      if (!granted) {
-        try {
-          granted = await BrowserApi.requestPermission({ permissions: ["nativeMessaging"] });
-        } catch (e) {
-          // eslint-disable-next-line
-          console.error(e);
-
-          if (this.platformUtilsService.isFirefox() && BrowserPopupUtils.inSidebar(window)) {
-            await this.dialogService.openSimpleDialog({
-              title: { key: "nativeMessaginPermissionSidebarTitle" },
-              content: { key: "nativeMessaginPermissionSidebarDesc" },
-              acceptButtonText: { key: "ok" },
-              cancelButtonText: null,
-              type: "info",
-            });
-
-            this.form.controls.allowSharingUnlockState.setValue(false, { emitEvent: false });
-            return;
-          }
-        }
-      }
-
-      if (!granted) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "nativeMessaginPermissionErrorTitle" },
-          content: { key: "nativeMessaginPermissionErrorDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "danger",
-        });
-
-        this.form.controls.allowSharingUnlockState.setValue(false, { emitEvent: false });
-        return;
-      }
-
-      await this.sharedUnlockSettingsService.setAllowSharingUnlockState(true, userId);
-    } else {
-      await this.sharedUnlockSettingsService.setAllowSharingUnlockState(false, userId);
+    await this.sharedUnlockSettingsService.setAllowSharingUnlockState(enabled, userId);
+    if (!enabled) {
       await this.vaultTimeoutSettingsService.clearVaultTimeoutSuppression(userId);
     }
   }
@@ -585,7 +547,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
     if (multiClientPasswordManagementFlagEnabled) {
-      await this.router.navigate(["/" + AuthExtensionRoute.ChangePassword]);
+      await this.router.navigate(["/" + AuthExtensionRoute.SettingsPassword]);
       return;
     }
 

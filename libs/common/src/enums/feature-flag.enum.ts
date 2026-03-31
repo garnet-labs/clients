@@ -83,18 +83,12 @@ export enum FeatureFlag {
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
 
-  /* Innovation */
-  PM19148_InnovationArchive = "pm-19148-innovation-archive",
-
   /* Innovation Sprint */
   SharedUnlock = "innovation-sprint-shared-unlock",
 
   /* Desktop */
   DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
   DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
-
-  /* UIF */
-  RouterFocusManagement = "router-focus-management",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -184,18 +178,12 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
 
-  /* Innovation */
-  [FeatureFlag.PM19148_InnovationArchive]: FALSE,
-
   /* Innovation Sprint */
   [FeatureFlag.SharedUnlock]: true,
 
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
-
-  /* UIF */
-  [FeatureFlag.RouterFocusManagement]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

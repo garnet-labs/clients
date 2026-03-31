@@ -40,8 +40,6 @@ export class InitService {
     private accountService: AccountService,
     private versionService: VersionService,
     private ipcService: IpcService,
-    private sharedUnlockFollowerService: SharedUnlockFollowerService,
-    private configService: ConfigService,
     private sdkLoadService: SdkLoadService,
     private taskService: TaskService,
     private readonly migrationRunner: MigrationRunner,
@@ -69,12 +67,7 @@ export class InitService {
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       this.themingService.applyThemeChangesTo(this.document);
       this.versionService.applyVersionToWindow();
-      void (await (async () => {
-        await this.ipcService.init();
-        if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock)) {
-          await this.sharedUnlockFollowerService.start();
-        }
-      })());
+      await this.ipcService.init();
 
       this.taskService.listenForTaskNotifications();
 

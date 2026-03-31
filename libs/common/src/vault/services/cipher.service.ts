@@ -321,8 +321,8 @@ export class CipherService implements CipherServiceAbstraction {
 
     if (
       // prevent unprivileged users from migrating to cipher key encryption
-      (model.viewPassword || originalCipher?.key) &&
-      (await this.getCipherKeyEncryptionEnabled())
+      (model.viewPassword && (await this.getCipherKeyEncryptionEnabled())) ||
+      originalCipher?.key
     ) {
       cipher.key = originalCipher?.key ?? null;
       const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
@@ -716,10 +716,6 @@ export class CipherService implements CipherServiceAbstraction {
       this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
     );
 
-    const archiveFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
-
     return ciphers.filter((cipher) => {
       const type = CipherViewLikeUtils.getType(cipher);
       const login = CipherViewLikeUtils.getLogin(cipher);
@@ -729,7 +725,7 @@ export class CipherService implements CipherServiceAbstraction {
         return false;
       }
 
-      if (archiveFeatureEnabled && CipherViewLikeUtils.isArchived(cipher)) {
+      if (CipherViewLikeUtils.isArchived(cipher)) {
         return false;
       }
 
@@ -756,15 +752,9 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
   ): Promise<CipherView[]> {
     const ciphers = await this.getAllDecrypted(userId);
-    const archiveFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
     return ciphers
       .filter(
-        (cipher) =>
-          cipher.deletedDate == null &&
-          (!archiveFeatureEnabled || !cipher.isArchived) &&
-          type.includes(cipher.type),
+        (cipher) => cipher.deletedDate == null && !cipher.isArchived && type.includes(cipher.type),
       )
       .sort((a, b) => this.sortCiphersByLastUsedThenName(a, b));
   }

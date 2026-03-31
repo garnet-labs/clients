@@ -27,11 +27,13 @@ import {
   ipcRequestUnlockBiometrics,
   type UserId as SdkUserId,
   BiometricsStatus as SdkBiometricsStatus,
+  ipcRequestAuthenticateBiometrics,
 } from "@bitwarden/sdk-internal";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;
+  private readonly IPC_REQUEST_TIMEOUT_MS = 2000;
 
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
@@ -66,6 +68,16 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock)) {
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => abortController.abort(), this.IPC_REQUEST_TIMEOUT_MS);
+      try {
+        return await ipcRequestAuthenticateBiometrics(this.ipcService.client, abortController.signal);
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
     try {
       await this.ensureConnected();
 
@@ -102,8 +114,14 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock)) {
-      await ipcRequestUnlockBiometrics(this.ipcService.client, asUuid(userId));
-      return null;
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => abortController.abort(), this.IPC_REQUEST_TIMEOUT_MS);
+      try {
+        await ipcRequestUnlockBiometrics(this.ipcService.client, asUuid(userId), abortController.signal);
+        return null;
+      } finally {
+        clearTimeout(timeoutId);
+      }
     }
     try {
       await this.ensureConnected();
@@ -138,21 +156,28 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
     if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlock)) {
       try {
-        const status = (await ipcRequestGetBiometricsStatus(
-          this.ipcService.client,
-          asUuid(id) as SdkUserId,
-        ));
-        switch (status) {
-          case SdkBiometricsStatus.Available:
-            return BiometricsStatus.Available;
-          case SdkBiometricsStatus.HardwareUnavailable:
-            return BiometricsStatus.HardwareUnavailable;
-          case SdkBiometricsStatus.NotEnabled:
-            return BiometricsStatus.NotEnabledInConnectedDesktopApp;
-          case SdkBiometricsStatus.UnlockNeeded:
-            return BiometricsStatus.UnlockNeeded;
-          default:
-            return BiometricsStatus.DesktopDisconnected;
+        const abortController = new AbortController();
+        const timeoutId = setTimeout(() => abortController.abort(), this.IPC_REQUEST_TIMEOUT_MS);
+        try {
+          const status = (await ipcRequestGetBiometricsStatus(
+            this.ipcService.client,
+            asUuid(id) as SdkUserId,
+            abortController.signal,
+          ));
+          switch (status) {
+            case SdkBiometricsStatus.Available:
+              return BiometricsStatus.Available;
+            case SdkBiometricsStatus.HardwareUnavailable:
+              return BiometricsStatus.HardwareUnavailable;
+            case SdkBiometricsStatus.NotEnabled:
+              return BiometricsStatus.NotEnabledInConnectedDesktopApp;
+            case SdkBiometricsStatus.UnlockNeeded:
+              return BiometricsStatus.UnlockNeeded;
+            default:
+              return BiometricsStatus.DesktopDisconnected;
+          }
+        } finally {
+          clearTimeout(timeoutId);
         }
       } catch (e) {
         this.logService.info("Getting biometric status for user failed", e);

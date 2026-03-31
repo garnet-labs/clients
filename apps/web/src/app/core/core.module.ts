@@ -77,6 +77,7 @@ import {
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
+    DefaultSharedUnlockSettingsService,
   SharedUnlockFollowerService,
   SharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
@@ -180,6 +181,7 @@ import { InitService } from "./init.service";
 import { ENV_URLS } from "./injection-tokens";
 import { RouterService } from "./router.service";
 import { WebPlatformUtilsService } from "./web-platform-utils.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 /**
  * Provider definitions used in the ngModule.
@@ -433,6 +435,11 @@ const safeProviders: SafeProvider[] = [
     provide: IpcService,
     useClass: WebIpcService,
     deps: [],
+  }),
+  safeProvider({
+    provide: SharedUnlockSettingsService,
+    useClass: DefaultSharedUnlockSettingsService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: SharedUnlockFollowerService,

@@ -26,17 +26,11 @@ export function createUserLockManagement(
   vaultTimeoutSettingsService: VaultTimeoutSettingsService,
   environmentService: EnvironmentService,
   sharedUnlockSettingsService: SharedUnlockSettingsService,
-  isFollower: boolean,
 ): UserLockManagement {
   return {
     async lock_user(user_id: UserId): Promise<void> {
       if (
-        !(await enabled(
-          sharedUnlockSettingsService,
-          platformUtilsService,
-          isFollower,
-          uuidAsString(user_id) as TSUserId,
-        ))
+        !(await sharedUnlockSettingsService.allowSharingUnlockState(uuidAsString(user_id) as TSUserId))
       ) {
         return;
       }
@@ -45,12 +39,7 @@ export function createUserLockManagement(
     },
     async unlock_user(user_id: UserId, key: Uint8Array): Promise<void> {
       if (
-        !(await enabled(
-          sharedUnlockSettingsService,
-          platformUtilsService,
-          isFollower,
-          uuidAsString(user_id) as TSUserId,
-        ))
+        !(await sharedUnlockSettingsService.allowSharingUnlockState(uuidAsString(user_id) as TSUserId))
       ) {
         return;
       }
@@ -84,13 +73,4 @@ export function createUserLockManagement(
       return environment.getWebVaultUrl();
     },
   };
-}
-
-async function enabled(
-  sharedUnlockSettingsService: SharedUnlockSettingsService,
-  platformUtilsService: PlatformUtilsService,
-  isFollower: boolean,
-  userId: TSUserId,
-): Promise<boolean> {
-  return await sharedUnlockSettingsService.allowSharingUnlockState(userId);
 }

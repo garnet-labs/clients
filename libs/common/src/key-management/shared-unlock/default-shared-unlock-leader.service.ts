@@ -38,7 +38,6 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
       this.vaultTimeoutSettingsService,
       this.environmentService,
       this.sharedUnlockSettingsService,
-      false,
     );
 
     const leader = await SharedUnlockLeader.try_new(this.ipcService.client, unlockManagementDriver);
