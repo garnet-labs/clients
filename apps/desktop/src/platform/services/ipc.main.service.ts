@@ -7,7 +7,6 @@ import {
   IpcMessage,
   IpcService,
   isIpcMessage,
-  IpcSessionRepository,
 } from "@bitwarden/common/platform/ipc";
 import { ipc } from "@bitwarden/desktop-napi";
 import {
@@ -31,7 +30,6 @@ export class IpcMainService extends IpcService {
     private app: Electron.App,
     private nativeMessaging: NativeMessagingMain,
     private windowMain: WindowMain,
-    private sessionRepository: IpcSessionRepository,
   ) {
     super();
   }
@@ -157,9 +155,7 @@ export class IpcMainService extends IpcService {
         }
       });
 
-      await super.initWithClient(
-        IpcClient.newWithClientManagedSessions(this.communicationBackend, this.sessionRepository),
-      );
+      await super.initWithClient(IpcClient.newWithSdkInMemorySessions(this.communicationBackend));
 
       if (isDev()) {
         await ipcRegisterDiscoverHandler(this.client, {
