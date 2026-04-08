@@ -149,7 +149,7 @@
     "ts-jest": "29.4.6",
     "ts-loader": "9.5.4",
     "tsconfig-paths-webpack-plugin": "4.2.0",
-    "type-fest": "2.19.0",
+    "type-fest": "5.5.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.58.0",
     "typescript-strict-plugin": "2.4.4",
