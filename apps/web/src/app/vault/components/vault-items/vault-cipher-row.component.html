@@ -91,11 +91,15 @@
     appStopProp
   ></button>
   <bit-menu #corruptedCipherOptions>
-    <button bitMenuItem *ngIf="canDeleteCipher" (click)="deleteCipher()" type="button">
-      <span class="tw-text-danger">
-        <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-        {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}
-      </span>
+    <button
+      bitMenuItem
+      variant="danger"
+      *ngIf="canDeleteCipher"
+      (click)="deleteCipher()"
+      type="button"
+    >
+      <bit-icon name="bwi-trash" slot="start" />
+      {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}
     </button>
   </bit-menu>
   @if (!decryptionFailure) {
@@ -247,11 +251,15 @@
         <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
         {{ "restore" | i18n }}
       </button>
-      <button bitMenuItem *ngIf="canDeleteCipher" (click)="deleteCipher()" type="button">
-        <span class="tw-text-danger">
-          <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-          {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}
-        </span>
+      <button
+        bitMenuItem
+        variant="danger"
+        *ngIf="canDeleteCipher"
+        (click)="deleteCipher()"
+        type="button"
+      >
+        <bit-icon name="bwi-trash" slot="start" />
+        {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}
       </button>
     </bit-menu>
   }

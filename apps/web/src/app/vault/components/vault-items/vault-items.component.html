@@ -111,12 +111,11 @@
               *ngIf="canDeleteSelected$ | async"
               type="button"
               bitMenuItem
+              variant="danger"
               (click)="bulkDelete()"
             >
-              <span class="tw-text-danger">
-                <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-                {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
-              </span>
+              <bit-icon name="bwi-trash" slot="start" />
+              {{ (showBulkTrashOptions ? "permanentlyDeleteSelected" : "delete") | i18n }}
             </button>
           </bit-menu>
         </th>

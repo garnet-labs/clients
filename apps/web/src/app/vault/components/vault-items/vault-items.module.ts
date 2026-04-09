@@ -4,7 +4,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { ScrollLayoutDirective, TableModule } from "@bitwarden/components";
+import { ScrollLayoutDirective, TableModule, IconModule } from "@bitwarden/components";
 import { CopyCipherFieldDirective } from "@bitwarden/vault";
 
 import { CollectionNameBadgeComponent } from "../../../admin-console/organizations/collections";
@@ -31,6 +31,7 @@ import { VaultItemsComponent } from "./vault-items.component";
     CopyCipherFieldDirective,
     ScrollLayoutDirective,
     PremiumBadgeComponent,
+    IconModule,
   ],
   declarations: [VaultItemsComponent, VaultCipherRowComponent, VaultCollectionRowComponent],
   exports: [VaultItemsComponent],
