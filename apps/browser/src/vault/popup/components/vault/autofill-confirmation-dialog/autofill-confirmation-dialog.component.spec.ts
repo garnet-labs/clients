@@ -360,5 +360,147 @@ describe("AutofillConfirmationDialogComponent", () => {
     it("returns loginMultipleSitesDesc when multiple URIs are saved", () => {
       expect(component.dialogBody()).toBe("loginMultipleSitesDesc");
     });
+
+    it("returns confirmAutofillDescNever when Never strategy is active", async () => {
+      const { component: c } = await createFreshFixture({
+        uriMatchStrategy: UriMatchStrategy.Never,
+      });
+      expect(c.dialogBody()).toBe("confirmAutofillDescNever");
+    });
+  });
+
+  describe("isNeverStrategy", () => {
+    it("is true when global strategy is Never", async () => {
+      const { component: c } = await createFreshFixture({
+        uriMatchStrategy: UriMatchStrategy.Never,
+      });
+      expect(c.isNeverStrategy()).toBe(true);
+    });
+
+    it("is true when any saved URI has match set to Never", async () => {
+      const { component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://other.com",
+          savedUris: [
+            makeUri("https://example.com"),
+            makeUri("https://example.com/login", UriMatchStrategy.Never),
+          ],
+        },
+      });
+      expect(c.isNeverStrategy()).toBe(true);
+    });
+
+    it("is false for Domain strategy with no Never URIs", () => {
+      expect(component.isNeverStrategy()).toBe(false);
+    });
+  });
+
+  describe("currentUrlMatchesSavedUri", () => {
+    it("is true when current URL hostname matches a saved URI hostname", async () => {
+      const { component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://example.com/path",
+          savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+        },
+      });
+      expect(c.currentUrlMatchesSavedUri()).toBe(true);
+    });
+
+    it("is false when current URL hostname does not match any saved URI", async () => {
+      const { component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://evil.com",
+          savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+        },
+      });
+      expect(c.currentUrlMatchesSavedUri()).toBe(false);
+    });
+  });
+
+  describe("Never strategy + physical URL match (STATE A)", () => {
+    const neverMatchParams: AutofillConfirmationDialogParams = {
+      currentUrl: "https://example.com/path",
+      savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+    };
+
+    it("shows uriMatchSetToNever title via global Never strategy", async () => {
+      const { fixture: vf } = await createFreshFixture({
+        params: neverMatchParams,
+        uriMatchStrategy: UriMatchStrategy.Never,
+      });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("uriMatchSetToNever");
+    });
+
+    it("shows uriMatchSetToNever title via per-URI Never strategy", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("uriMatchSetToNever");
+    });
+
+    it("shows never match body text parts", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("uriMatchNeverDescPart1");
+      expect(text).toContain("uriMatchNeverBold");
+      expect(text).toContain("uriMatchNeverDescPart2");
+    });
+
+    it("shows autofillAnyway button and hides autofillAndSaveThisSite / autofillOnly", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("autofillAnyway");
+      expect(text).not.toContain("autofillAndSaveThisSite");
+      expect(text).not.toContain("autofillOnly");
+    });
+
+    it("shows cancel button", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("cancel");
+    });
+
+    it("renders the never keyword in a strong element", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const strong = vf.nativeElement.querySelector("strong") as HTMLElement | null;
+      expect(strong).toBeTruthy();
+      expect(strong!.textContent).toContain("uriMatchNeverBold");
+    });
+  });
+
+  describe("Never strategy + no physical URL match (STATE B)", () => {
+    const neverNoMatchParams: AutofillConfirmationDialogParams = {
+      currentUrl: "https://evil.com/path",
+      savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+    };
+
+    it("shows confirmAutofillDescNever body text", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverNoMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("confirmAutofillDescNever");
+    });
+
+    it("does not show uriMatchSetToNever title", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverNoMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).not.toContain("uriMatchSetToNever");
+    });
+
+    it("shows standard dialog buttons", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverNoMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("autofillAndSaveThisSite");
+      expect(text).toContain("autofillOnly");
+      expect(text).toContain("cancel");
+    });
+
+    it("shows confirmAutofillDescNever when global strategy is Never", async () => {
+      const { fixture: vf } = await createFreshFixture({
+        params: neverNoMatchParams,
+        uriMatchStrategy: UriMatchStrategy.Never,
+      });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("confirmAutofillDescNever");
+    });
   });
 });

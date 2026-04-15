@@ -1797,6 +1797,24 @@
   "confirmAutofillDesc": {
     "message": "This site doesn't match your saved login details. Before you fill in your login credentials, make sure it's a trusted site."
   },
+  "confirmAutofillDescNever": {
+    "message": "This site doesn't match your saved login details or match criteria. Before you fill in your login credentials, make sure it's a trusted site."
+  },
+  "uriMatchSetToNever": {
+    "message": "URI match set to never"
+  },
+  "uriMatchNeverDescPart1": {
+    "message": "This site matches your saved site for this login, but the URI match detection is set to "
+  },
+  "uriMatchNeverBold": {
+    "message": "never"
+  },
+  "uriMatchNeverDescPart2": {
+    "message": ", which excludes it from autofill."
+  },
+  "autofillAnyway": {
+    "message": "Autofill anyway"
+  },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
   },

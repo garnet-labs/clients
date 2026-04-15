@@ -99,13 +99,33 @@ export class AutofillConfirmationDialogComponent {
   readonly viewOnly = signal<boolean>(this.params.viewOnly ?? false);
   readonly savedUrlsExpanded = signal<boolean>(false);
 
-  readonly dialogTitle = computed(() =>
-    this.savedUrls().length === 0
+  readonly isNeverStrategy = computed<boolean>(() => {
+    const uriMatchSetting = this.uriMatchSetting();
+    return (
+      uriMatchSetting === UriMatchStrategy.Never ||
+      this.savedUrls().some((u) => u.match === UriMatchStrategy.Never)
+    );
+  });
+
+  readonly currentUrlMatchesSavedUri = computed<boolean>(() => {
+    const currentHostname = Utils.getHostname(this.currentUrl());
+    if (!currentHostname) {return false;}
+    return this.savedUrls().some((u) => Utils.getHostname(u.uri ?? "") === currentHostname);
+  });
+
+  readonly dialogTitle = computed(() => {
+    if (this.isNeverStrategy() && this.currentUrlMatchesSavedUri()) {
+      return this.i18nService.t("uriMatchSetToNever");
+    }
+    return this.savedUrls().length === 0
       ? this.i18nService.t("loginHasNoSiteSaved")
-      : this.i18nService.t("siteDoesntMatch"),
-  );
+      : this.i18nService.t("siteDoesntMatch");
+  });
 
   readonly dialogBody = computed(() => {
+    if (this.isNeverStrategy()) {
+      return this.i18nService.t("confirmAutofillDescNever");
+    }
     const count = this.savedUrls().length;
     if (count === 0) {
       return this.i18nService.t("loginNoSiteDesc");
