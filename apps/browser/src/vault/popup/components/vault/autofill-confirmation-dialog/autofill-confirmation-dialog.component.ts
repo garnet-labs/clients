@@ -109,7 +109,9 @@ export class AutofillConfirmationDialogComponent {
 
   readonly currentUrlMatchesSavedUri = computed<boolean>(() => {
     const currentHostname = Utils.getHostname(this.currentUrl());
-    if (!currentHostname) {return false;}
+    if (!currentHostname) {
+      return false;
+    }
     return this.savedUrls().some((u) => Utils.getHostname(u.uri ?? "") === currentHostname);
   });
 
@@ -123,12 +125,12 @@ export class AutofillConfirmationDialogComponent {
   });
 
   readonly dialogBody = computed(() => {
-    if (this.isNeverStrategy()) {
-      return this.i18nService.t("confirmAutofillDescNever");
-    }
     const count = this.savedUrls().length;
     if (count === 0) {
       return this.i18nService.t("loginNoSiteDesc");
+    }
+    if (this.isNeverStrategy()) {
+      return this.i18nService.t("confirmAutofillDescNever");
     }
     if (count === 1) {
       return this.i18nService.t("loginSingleSiteDesc");

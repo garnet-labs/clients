@@ -361,11 +361,19 @@ describe("AutofillConfirmationDialogComponent", () => {
       expect(component.dialogBody()).toBe("loginMultipleSitesDesc");
     });
 
-    it("returns confirmAutofillDescNever when Never strategy is active", async () => {
+    it("returns confirmAutofillDescNever when Never strategy is active with saved URIs", async () => {
       const { component: c } = await createFreshFixture({
         uriMatchStrategy: UriMatchStrategy.Never,
       });
       expect(c.dialogBody()).toBe("confirmAutofillDescNever");
+    });
+
+    it("returns loginNoSiteDesc when Never strategy is active but no URIs are saved", async () => {
+      const { component: c } = await createFreshFixture({
+        uriMatchStrategy: UriMatchStrategy.Never,
+        params: { currentUrl: "https://example.com", savedUris: [] },
+      });
+      expect(c.dialogBody()).toBe("loginNoSiteDesc");
     });
   });
 
