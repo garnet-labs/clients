@@ -129,7 +129,7 @@ export class AutofillConfirmationDialogComponent {
     if (count === 0) {
       return this.i18nService.t("loginNoSiteDesc");
     }
-    if (this.isNeverStrategy()) {
+    if (this.isNeverStrategy() && !this.currentUrlMatchesSavedUri()) {
       return this.i18nService.t("confirmAutofillDescNever");
     }
     if (count === 1) {

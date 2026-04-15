@@ -361,11 +361,22 @@ describe("AutofillConfirmationDialogComponent", () => {
       expect(component.dialogBody()).toBe("loginMultipleSitesDesc");
     });
 
-    it("returns confirmAutofillDescNever when Never strategy is active with saved URIs", async () => {
+    it("returns confirmAutofillDescNever when Never strategy is active and URL does not match saved URIs (State B)", async () => {
       const { component: c } = await createFreshFixture({
         uriMatchStrategy: UriMatchStrategy.Never,
       });
       expect(c.dialogBody()).toBe("confirmAutofillDescNever");
+    });
+
+    it("falls through to loginSingleSiteDesc for State A (body rendered via template, not dialogBody)", async () => {
+      const { component: c } = await createFreshFixture({
+        uriMatchStrategy: UriMatchStrategy.Never,
+        params: {
+          currentUrl: "https://example.com/path",
+          savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+        },
+      });
+      expect(c.dialogBody()).toBe("loginSingleSiteDesc");
     });
 
     it("returns loginNoSiteDesc when Never strategy is active but no URIs are saved", async () => {
@@ -446,33 +457,22 @@ describe("AutofillConfirmationDialogComponent", () => {
       expect(text).toContain("uriMatchSetToNever");
     });
 
-    it("shows never match body text parts", async () => {
+    it("shows split never body text with bold keyword", async () => {
       const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
       const text = vf.nativeElement.textContent as string;
       expect(text).toContain("uriMatchNeverDescPart1");
       expect(text).toContain("uriMatchNeverBold");
       expect(text).toContain("uriMatchNeverDescPart2");
-    });
-
-    it("shows autofillAnyway button and hides autofillAndSaveThisSite / autofillOnly", async () => {
-      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
-      const text = vf.nativeElement.textContent as string;
-      expect(text).toContain("autofillAnyway");
-      expect(text).not.toContain("autofillAndSaveThisSite");
-      expect(text).not.toContain("autofillOnly");
-    });
-
-    it("shows cancel button", async () => {
-      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
-      const text = vf.nativeElement.textContent as string;
-      expect(text).toContain("cancel");
-    });
-
-    it("renders the never keyword in a strong element", async () => {
-      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
       const strong = vf.nativeElement.querySelector("strong") as HTMLElement | null;
-      expect(strong).toBeTruthy();
-      expect(strong!.textContent).toContain("uriMatchNeverBold");
+      expect(strong?.textContent).toContain("uriMatchNeverBold");
+    });
+
+    it("shows standard dialog buttons", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("autofillAndSaveThisSite");
+      expect(text).toContain("autofillOnly");
+      expect(text).toContain("cancel");
     });
   });
 

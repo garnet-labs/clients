@@ -1812,9 +1812,6 @@
   "uriMatchNeverDescPart2": {
     "message": ", which excludes it from autofill."
   },
-  "autofillAnyway": {
-    "message": "Autofill anyway"
-  },
   "loginHasNoSiteSaved": {
     "message": "Login has no site saved"
   },
