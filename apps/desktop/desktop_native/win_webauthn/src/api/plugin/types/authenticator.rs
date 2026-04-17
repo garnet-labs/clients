@@ -139,7 +139,7 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
 
         let inner = WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS {
             pwszAuthenticatorName: authenticator_name.as_ptr(),
-            rclsid: &value.clsid.0,
+            rclsid: rclsid.as_ref(),
             pwszPluginRpId: rp_id.as_ref().map_or(std::ptr::null(), |v| v.as_ptr()),
             pwszLightThemeLogoSvg: light_logo_b64
                 .as_ref()
