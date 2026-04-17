@@ -61,7 +61,7 @@ use crate::{
 
 pub type PluginLockStatus = super::sys::plugin::PLUGIN_LOCK_STATUS;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Clsid(GUID);
 
 impl TryFrom<&str> for Clsid {
