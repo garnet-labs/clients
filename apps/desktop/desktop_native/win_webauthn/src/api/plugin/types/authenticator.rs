@@ -1,7 +1,10 @@
-use std::{mem::MaybeUninit, ptr::NonNull};
+use std::{
+    mem::{ManuallyDrop, MaybeUninit},
+    ptr::NonNull,
+};
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use windows::core::GUID;
+use windows::{core::GUID, Win32::System::Com::CoTaskMemFree};
 
 use crate::{
     api::{
@@ -279,15 +282,21 @@ pub struct PluginCredentialDetails {
     pub user_display_name: String,
 }
 
+/// A type to hold buffers to send over to COM.
 pub struct PluginCredentialDetailsRaw {
-    inner: WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS,
+    credential_id_byte_count: u32,
+    credential_id_pointer: ComBuffer,
+    rpid: ComBuffer,
+    rp_friendly_name: Option<ComBuffer>,
+    user_id_byte_count: u32,
+    user_id_pointer: ComBuffer,
+    user_name: ComBuffer,
+    user_display_name: ComBuffer,
 }
 
 impl From<&PluginCredentialDetails> for PluginCredentialDetailsRaw {
     fn from(value: &PluginCredentialDetails) -> Self {
         // All buffers must be allocated with the COM task allocator to be passed over COM.
-        // The receiver is responsible for freeing the COM memory, which is why we leak all the
-        // buffers here.
 
         // Allocate credential_id bytes with COM
         let credential_id_buf = value.credential_id.as_ref().to_com_buffer();
@@ -302,30 +311,43 @@ impl From<&PluginCredentialDetails> for PluginCredentialDetailsRaw {
             .map(|display_name| display_name.to_utf16().to_com_buffer());
         let user_name_buf: ComBuffer = (value.user_name.to_utf16()).to_com_buffer();
         let user_display_name_buf: ComBuffer = value.user_display_name.to_utf16().to_com_buffer();
-        let inner = WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS {
+        Self {
             credential_id_byte_count: u32::from(value.credential_id.len()),
-            credential_id_pointer: credential_id_buf.into_raw(),
-            rpid: rp_id_buf.into_raw(),
-            rp_friendly_name: rp_friendly_name_buf.map_or(std::ptr::null(), |buf| buf.into_raw()),
+            credential_id_pointer: credential_id_buf,
+            rpid: rp_id_buf,
+            rp_friendly_name: rp_friendly_name_buf,
             user_id_byte_count: u32::from(value.user_id.len()),
-            user_id_pointer: user_id_buf.into_raw(),
-            user_name: user_name_buf.into_raw(),
-            user_display_name: user_display_name_buf.into_raw(),
-        };
-        PluginCredentialDetailsRaw { inner }
+            user_id_pointer: user_id_buf,
+            user_name: user_name_buf,
+            user_display_name: user_display_name_buf,
+        }
     }
 }
 
 pub(crate) fn add_credentials(
     clsid: &Clsid,
-    credentials: &[PluginCredentialDetailsRaw],
+    credentials: Vec<PluginCredentialDetailsRaw>,
 ) -> Result<(), WinWebAuthnError> {
     // SAFETY: The pointer to credentials lives longer than the call to
     // webauthn_plugin_authenticator_add_credentials(). The nested
-    // buffers are allocated with COM, which the OS is responsible for
-    // cleaning up.
-    let array: Vec<WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS> =
-        credentials.iter().map(|c| c.inner).collect();
+    // buffers are allocated with COM, which Windows OS client is responsible for
+    // cleaning up, so we leak them.
+    let array: Vec<WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS> = credentials
+        .iter()
+        .map(|c| WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS {
+            credential_id_byte_count: c.credential_id_byte_count,
+            credential_id_pointer: c.credential_id_pointer.as_ptr(),
+            rpid: c.rpid.as_ptr(),
+            rp_friendly_name: c
+                .rp_friendly_name
+                .as_ref()
+                .map_or(std::ptr::null(), |buf| buf.as_ptr()),
+            user_id_byte_count: c.user_id_byte_count,
+            user_id_pointer: c.user_id_pointer.as_ptr(),
+            user_name: c.user_name.as_ptr(),
+            user_display_name: c.user_display_name.as_ptr(),
+        })
+        .collect();
     // SAFETY: We only run on platforms where usize >= 32;
     let len = credentials.len() as u32;
     let result =
@@ -336,6 +358,28 @@ pub(crate) fn add_credentials(
             "Failed to add credential list to autofill store",
             err,
         ));
+    }
+    // On success, we need to leak the COM buffers.
+    // Add lint to make sure we leak everything if more fields are added to the
+    // struct.
+    #[forbid(unused_variables)]
+    for c in credentials {
+        let PluginCredentialDetailsRaw {
+            credential_id_pointer,
+            credential_id_byte_count: _,
+            rpid,
+            rp_friendly_name,
+            user_id_byte_count: _,
+            user_id_pointer,
+            user_name,
+            user_display_name,
+        } = c;
+        _ = ManuallyDrop::new(credential_id_pointer);
+        _ = ManuallyDrop::new(rpid);
+        _ = ManuallyDrop::new(rp_friendly_name);
+        _ = ManuallyDrop::new(user_id_pointer);
+        _ = ManuallyDrop::new(user_name);
+        _ = ManuallyDrop::new(user_display_name);
     }
     Ok(())
 }

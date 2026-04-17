@@ -145,7 +145,7 @@ impl WebAuthnPlugin {
             .map(PluginCredentialDetailsRaw::from)
             .collect::<Vec<_>>();
 
-        let result = add_credentials(&self.clsid, win_credentials.as_slice());
+        let result = add_credentials(&self.clsid, win_credentials);
 
         match result {
             Err(err) => {
