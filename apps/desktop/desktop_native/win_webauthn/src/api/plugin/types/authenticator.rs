@@ -149,6 +149,11 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
                 .map_or(std::ptr::null(), |v| v.as_ptr()),
             cbAuthenticatorInfo: authenticator_info.len() as u32,
             pbAuthenticatorInfo: authenticator_info.as_ptr(),
+            // These pointers are self-referential and can cause issues if the
+            // wrapper struct is moved, or if the Vec is modified without also
+            // updating the pointers in inner.pbSupporteRpIds.
+            // Consider removing this wrapper struct and inlining the call to
+            // webauthn_plugin_add_authenticator to avoid this.
             cSupportedRpIds: supported_rp_id_ptrs
                 .as_ref()
                 .map_or(0, |ids| ids.len() as u32),
