@@ -246,8 +246,7 @@ impl Drop for PluginAddAuthenticatorResponse {
             // - we cannot load the webauthn.dll, which we already have if we have constructed this
             //   type, or
             // - we spelled the function wrong, which is a library error.
-            webauthn_plugin_free_add_authenticator_response(self.inner.as_mut())
-                .expect("function to load properly");
+            let _ = webauthn_plugin_free_add_authenticator_response(self.inner.as_mut());
         }
     }
 }
