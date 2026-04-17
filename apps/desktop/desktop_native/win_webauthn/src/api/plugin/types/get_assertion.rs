@@ -17,12 +17,11 @@ use crate::{
 
 #[derive(Debug)]
 pub struct PluginGetAssertionRequest<'a> {
-    inner: *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
+    inner: *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST<'a>,
     pub window_handle: HWND,
     pub transaction_id: GUID,
     pub request_signature: Vec<u8>,
     pub request_hash: Vec<u8>,
-    _phantom: PhantomData<&'a WEBAUTHN_PLUGIN_OPERATION_REQUEST>,
 }
 
 impl<'a> PluginGetAssertionRequest<'a> {
@@ -54,12 +53,8 @@ impl<'a> PluginGetAssertionRequest<'a> {
     // TODO(PM-30510): Support extensions
     // pub fn extensions(&self) -> Options<Extensions> {}
 
-    pub fn authenticator_options(&self) -> Option<WebAuthnCtapCborAuthenticatorOptions> {
-        let ptr = self.as_ref().pAuthenticatorOptions;
-        if ptr.is_null() {
-            return None;
-        }
-        unsafe { Some(*ptr) }
+    pub fn authenticator_options(&self) -> Option<&'a WebAuthnCtapCborAuthenticatorOptions> {
+        self.as_ref().pAuthenticatorOptions
     }
 
     /// # Safety
@@ -118,13 +113,12 @@ impl<'a> PluginGetAssertionRequest<'a> {
             )
             .to_vec(),
             request_hash: request_hash.to_vec(),
-            _phantom: PhantomData,
         })
     }
 }
 
-impl AsRef<WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST> for PluginGetAssertionRequest<'_> {
-    fn as_ref(&self) -> &WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST {
+impl<'a> AsRef<WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST<'a>> for PluginGetAssertionRequest<'a> {
+    fn as_ref(&self) -> &WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST<'a> {
         unsafe { &*self.inner }
     }
 }
