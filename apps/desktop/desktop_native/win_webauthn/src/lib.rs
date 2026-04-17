@@ -10,6 +10,8 @@
 
 #[allow(unsafe_code)]
 pub(crate) mod api;
+#[forbid(unsafe_code)]
+pub mod plugin;
 
 use std::{error::Error, fmt::Display};
 
