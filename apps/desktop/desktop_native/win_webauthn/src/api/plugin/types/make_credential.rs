@@ -128,11 +128,13 @@ impl<'a> PluginMakeCredentialRequest<'a> {
         }
 
         let mut registration_request = MaybeUninit::uninit();
-        webauthn_decode_make_credential_request(
-            request.cbEncodedRequest,
-            request.pbEncodedRequest,
-            registration_request.as_mut_ptr(),
-        )?
+        unsafe {
+            webauthn_decode_make_credential_request(
+                request.cbEncodedRequest,
+                request.pbEncodedRequest,
+                registration_request.as_mut_ptr(),
+            )
+        }?
         .ok()
         .map_err(|err| {
             WinWebAuthnError::with_cause(
