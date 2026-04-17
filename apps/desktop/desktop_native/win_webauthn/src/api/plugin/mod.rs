@@ -10,13 +10,15 @@ use std::{error::Error, marker::PhantomData, mem::MaybeUninit, ptr::NonNull};
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 pub use types::*;
 use windows::{
+    core::PCWSTR,
     core::{GUID, HRESULT},
     Win32::{
         Foundation::{E_INVALIDARG, HWND, NTE_USER_CANCELLED, S_OK},
         Security::Cryptography::BCRYPT_KEY_BLOB,
-        System::Com::CoTaskMemFree,
+        System::Com::{CLSIDFromString, CoTaskMemFree},
     },
 };
+use windows_core::HSTRING;
 
 use crate::{
     api::{
@@ -66,26 +68,11 @@ impl TryFrom<&str> for Clsid {
     type Error = WinWebAuthnError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        // Remove hyphens and parse as hex
-        let clsid_clean = value.replace("-", "").replace("{", "").replace("}", "");
-        if clsid_clean.len() != 32 {
-            return Err(WinWebAuthnError::new(
-                ErrorKind::Serialization,
-                "Invalid CLSID format",
-            ));
-        }
-
-        // Convert to u128 and create GUID
-        let clsid_u128 = u128::from_str_radix(&clsid_clean, 16).map_err(|err| {
-            WinWebAuthnError::with_cause(
-                ErrorKind::Serialization,
-                "Failed to parse CLSID as hex",
-                err,
-            )
+        let wstr = value.to_utf16();
+        let clsid = unsafe { CLSIDFromString(PCWSTR::from_raw(wstr.as_ptr())) }.map_err(|err| {
+            WinWebAuthnError::with_cause(ErrorKind::InvalidArguments, "Failed to parse CLSID", err)
         })?;
-
-        let clsid = Clsid(GUID::from_u128(clsid_u128));
-        Ok(clsid)
+        Ok(Clsid(clsid))
     }
 }
 
@@ -184,7 +171,7 @@ impl Drop for VerifyingKey {
 mod tests {
     use super::Clsid;
 
-    const CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
+    const CLSID: &str = "{0f7dc5d9-69ce-4652-8572-6877fd695062}";
 
     #[test]
     fn test_parse_clsid_to_guid() {
