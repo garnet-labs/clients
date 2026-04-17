@@ -112,9 +112,6 @@ impl WebAuthnPlugin {
         &self,
         credentials: Vec<PluginCredentialDetails>,
     ) -> Result<(), WinWebAuthnError> {
-        if credentials.is_empty() {
-            tracing::debug!("[SYNC_TO_WIN] No credentials to sync, proceeding with empty sync");
-        }
         if let Err(err) = u32::try_from(credentials.len()) {
             return Err(WinWebAuthnError::with_cause(
                 ErrorKind::InvalidArguments,
@@ -138,34 +135,33 @@ impl WebAuthnPlugin {
         // Add the new credentials (only if we have any)
         if credentials.is_empty() {
             tracing::debug!("No credentials to add to Windows - sync completed successfully");
-            Ok(())
-        } else {
-            tracing::debug!("Adding new credentials to Windows...");
+            return Ok(());
+        }
+        tracing::debug!("Adding new credentials to Windows...");
 
-            // Convert to raw credentials to Windows credential details
-            let win_credentials = credentials
-                .iter()
-                .map(PluginCredentialDetailsRaw::from)
-                .collect::<Vec<_>>();
+        // Convert to raw credentials to Windows credential details
+        let win_credentials = credentials
+            .iter()
+            .map(PluginCredentialDetailsRaw::from)
+            .collect::<Vec<_>>();
 
-            let result = add_credentials(&self.clsid, win_credentials.as_slice());
+        let result = add_credentials(&self.clsid, win_credentials.as_slice());
 
-            match result {
-                Err(err) => {
-                    let err = WinWebAuthnError::with_cause(
+        match result {
+            Err(err) => {
+                let err = WinWebAuthnError::with_cause(
                             ErrorKind::WindowsInternal,
                             "Failed to add credentials to Windows autofill list. Credentials list is now empty",
                             err,
                         );
-                    tracing::error!(
+                tracing::error!(
                             "Failed to add credentials to Windows autofill list. Credentials list is now empty. {err}"
                         );
-                    Err(err)
-                }
-                Ok(()) => {
-                    tracing::debug!("Successfully synced credentials to Windows");
-                    Ok(())
-                }
+                Err(err)
+            }
+            Ok(()) => {
+                tracing::debug!("Successfully synced credentials to Windows");
+                Ok(())
             }
         }
     }
