@@ -154,7 +154,8 @@ pub(crate) fn get_user_verification_public_key(
                     err,
                 )
             })?;
-            let key = VerifyingKey::new(data, len)?;
+            // SAFETY: The data was received by Windows.
+            let key = unsafe { VerifyingKey::new(data, len)? };
             Ok(key)
         }
         None => Err(WinWebAuthnError::new(
