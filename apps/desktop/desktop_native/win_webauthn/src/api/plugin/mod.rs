@@ -135,7 +135,13 @@ impl VerifyingKey {
     /// # Arguments
     /// - `key_blob`: Pointer to the key blob header and remaining data.
     /// - `len`: Total length of the key blob, including the [BCRYPT_KEY_BLOB] header.
-    fn new(key_blob: NonNull<BCRYPT_KEY_BLOB>, len: usize) -> Result<Self, WinWebAuthnError> {
+    ///
+    /// # Safety
+    /// The caller must ensure that `key_blob` points to a valid key of length `len`.
+    unsafe fn new(
+        key_blob: NonNull<BCRYPT_KEY_BLOB>,
+        len: usize,
+    ) -> Result<Self, WinWebAuthnError> {
         let slice = unsafe { std::slice::from_raw_parts(key_blob.as_ptr().cast(), len) };
         let public_key = crypto::parse_public_key(slice).map_err(|err| {
             WinWebAuthnError::with_cause(

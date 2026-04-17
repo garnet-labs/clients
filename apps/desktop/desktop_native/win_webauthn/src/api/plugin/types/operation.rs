@@ -179,7 +179,8 @@ pub(crate) fn get_operation_signing_public_key(
                     err,
                 )
             })?;
-            let key = VerifyingKey::new(data, len)?;
+            // SAFETY: The data was received by Windows.
+            let key = unsafe { VerifyingKey::new(data, len)? };
             Ok(key)
         }
         None => Err(WinWebAuthnError::new(
