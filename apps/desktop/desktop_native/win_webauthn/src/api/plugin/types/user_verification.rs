@@ -77,7 +77,7 @@ pub(crate) fn perform_user_verification(
     operation_request_hash: &[u8],
 ) -> Result<(), WinWebAuthnError> {
     let mut response_len = 0;
-    let mut response_ptr = MaybeUninit::uninit();
+    let mut response_ptr = MaybeUninit::zeroed();
     let hresult = unsafe {
         webauthn_plugin_perform_user_verification(
             &request.inner,
@@ -105,15 +105,23 @@ pub(crate) fn perform_user_verification(
             };
             Ok(signature)
         }
-        NTE_USER_CANCELLED => Err(WinWebAuthnError::new(
-            ErrorKind::Other,
-            "User cancelled user verification",
-        )),
-        _ => Err(WinWebAuthnError::with_cause(
-            ErrorKind::WindowsInternal,
-            "Unknown error occurred while performing user verification",
-            windows::core::Error::from_hresult(hresult),
-        )),
+        err => {
+            if !response_ptr.as_ptr().is_null() {
+                unsafe { response_ptr.assume_init_drop() };
+            }
+            if err == NTE_USER_CANCELLED {
+                Err(WinWebAuthnError::new(
+                    ErrorKind::Other,
+                    "User cancelled user verification",
+                ))
+            } else {
+                Err(WinWebAuthnError::with_cause(
+                    ErrorKind::WindowsInternal,
+                    "Unknown error occurred while performing user verification",
+                    windows::core::Error::from_hresult(hresult),
+                ))
+            }
+        }
     }?;
     public_key.verify_signature(
         RequestHash::new(operation_request_hash),
