@@ -1,4 +1,7 @@
-use std::{mem::MaybeUninit, ptr::NonNull};
+use std::{
+    mem::{ManuallyDrop, MaybeUninit},
+    ptr::NonNull,
+};
 
 use windows::core::GUID;
 
@@ -135,9 +138,11 @@ impl OperationResponse {
         unsafe {
             self.inner.write(WEBAUTHN_PLUGIN_OPERATION_RESPONSE {
                 cbEncodedResponse: len,
-                pbEncodedResponse: buf.into_raw(),
+                pbEncodedResponse: buf.as_mut_ptr(),
             });
         }
+        // Leak the buffer to the COM implementation
+        ManuallyDrop::new(buf);
         Ok(())
     }
 }
