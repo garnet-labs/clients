@@ -106,7 +106,6 @@
     ></button>
   }
   <bit-menu #corruptedCipherOptions>
-    <<<<<<< HEAD
     <button
       bitMenuItem
       variant="danger"
@@ -117,7 +116,6 @@
       <bit-icon name="bwi-trash" slot="start" />
       {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}
     </button>
-    =======
     @if (canDeleteCipher) {
       <button bitMenuItem (click)="deleteCipher()" type="button">
         <span class="tw-text-danger">
@@ -126,7 +124,6 @@
         </span>
       </button>
     }
-    >>>>>>> uif/CL-1042/ds-refresh-3
   </bit-menu>
   @if (!decryptionFailure) {
     <button
