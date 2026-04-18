@@ -130,10 +130,11 @@ impl Drop for PluginGetAssertionRequest<'_> {
             // is allocated with an allocator corresponding to this free
             // function.
             unsafe {
-                // leak memory if we cannot find the free function
-                _ = webauthn_free_decoded_get_assertion_request(
+                if let Err(err) = webauthn_free_decoded_get_assertion_request(
                     self.inner as *mut WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
-                );
+                ) {
+                    tracing::error!(%err, "Failed to free decoded get assertion");
+                }
             }
         }
     }
