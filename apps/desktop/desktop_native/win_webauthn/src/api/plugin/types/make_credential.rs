@@ -65,7 +65,6 @@ impl<'a> PluginMakeCredentialRequest<'a> {
         // SAFETY: When this is constructed using Self::try_from_ptr(), the Windows decode API
         // constructs valid pointers.
         let ptr = self.as_ref().pUserInformation;
-        assert!(!ptr.is_null());
         unsafe {
             UserEntityInformation::new(ptr.as_ref().expect("pUserInformation to be non-null"))
         }
@@ -173,10 +172,11 @@ impl Drop for PluginMakeCredentialRequest<'_> {
             // is allocated with an allocator corresponding to this free
             // function.
             unsafe {
-                // leak memory if we cannot find the free function
-                _ = webauthn_free_decoded_make_credential_request(
+                if let Err(err) = webauthn_free_decoded_make_credential_request(
                     self.inner as *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
-                );
+                ) {
+                    tracing::error!(%err, "Failed to free decoded make credential request");
+                }
             }
         }
     }
