@@ -142,15 +142,19 @@ pub(crate) fn get_user_verification_public_key(
     let mut data = MaybeUninit::uninit();
     // SAFETY: We check the OS error code before using the written pointer.
     let data = unsafe {
-        webauthn_plugin_get_user_verification_public_key(&clsid.0, &mut len, data.as_mut_ptr())?
-            .ok()
-            .map_err(|err| {
-                WinWebAuthnError::with_cause(
-                    ErrorKind::WindowsInternal,
-                    "Failed to retrieve user verification public key",
-                    err,
-                )
-            })?;
+        webauthn_plugin_get_user_verification_public_key(
+            &clsid.as_guid(),
+            &mut len,
+            data.as_mut_ptr(),
+        )?
+        .ok()
+        .map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "Failed to retrieve user verification public key",
+                err,
+            )
+        })?;
         data.assume_init()
     };
 
