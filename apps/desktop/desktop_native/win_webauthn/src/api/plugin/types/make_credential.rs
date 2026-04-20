@@ -15,7 +15,8 @@ use crate::{
                 WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
                 WEBAUTHN_PLUGIN_REQUEST_TYPE,
             },
-            WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_EXTENSIONS,
+            WEBAUTHN_ATTESTATION_DECODE_NONE, WEBAUTHN_CREDENTIAL_ATTESTATION,
+            WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8, WEBAUTHN_EXTENSIONS,
         },
         webauthn::{
             CoseCredentialParameter, CoseCredentialParameters, CredentialEx, CtapTransport,
@@ -311,14 +312,14 @@ impl PluginMakeCredentialResponse {
 
         let attestation = WEBAUTHN_CREDENTIAL_ATTESTATION {
             // Use version 8 to include all fields
-            dwVersion: 8,
+            dwVersion: WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8,
             pwszFormatType,
             cbAuthenticatorData,
             pbAuthenticatorData,
             cbAttestation,
             pbAttestation,
-            // TODO: Support decode type. Just using WEBAUTHN_ATTESTATION_DECODE_NONE (0) for now.
-            dwAttestationDecodeType: 0,
+            // TODO: Support attestation.
+            dwAttestationDecodeType: WEBAUTHN_ATTESTATION_DECODE_NONE,
             pvAttestationDecode: std::ptr::null(),
             cbAttestationObject,
             pbAttestationObject,
