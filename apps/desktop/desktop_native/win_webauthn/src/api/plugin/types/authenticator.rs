@@ -80,7 +80,8 @@ pub struct PluginAddAuthenticatorOptions {
     /// CTAP authenticatorGetInfo values
     pub authenticator_info: AuthenticatorInfo,
 
-    /// List of supported RP IDs (Relying Party IDs).
+    /// List of supported RP IDs (Relying Party IDs) this authenticator is
+    /// restricted to use.
     ///
     /// Should be [None] if all RPs are supported.
     pub supported_rp_ids: Option<Vec<String>>,
