@@ -72,7 +72,7 @@ pub struct PluginAddAuthenticatorOptions {
     /// String should contain a valid SVG 1.1 document.
     pub light_theme_logo_svg: Option<String>,
 
-    // Plugin Authenticator Logo for the Dark themes. Bytes of SVG 1.1.
+    // Plugin Authenticator Logo for the Dark themes.
     ///
     /// String should contain a valid SVG 1.1 element.
     pub dark_theme_logo_svg: Option<String>,
@@ -276,7 +276,7 @@ pub struct PluginCredentialDetails {
     /// Corresponds to [`name`](https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialentity-name) field of WebAuthn `PublicKeyCredentialUserEntity`.
     pub user_name: String,
 
-    /// User name.
+    /// User display name.
     ///
     /// Corresponds to [`displayName`](https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialuserentity-displayname) field of WebAuthn `PublicKeyCredentialUserEntity`.
     pub user_display_name: String,
