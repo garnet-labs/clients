@@ -32,7 +32,7 @@ use crate::{
 /// # Safety
 /// The caller must ensure that `request.pbRequestSignature` points to a valid non-null byte
 /// string of length `request.cbRequestSignature`.
-pub(in crate::api::plugin) fn get_request_signature(
+pub(in crate::api::plugin) unsafe fn get_request_signature(
     request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST,
 ) -> Result<Signature<'_>, WinWebAuthnError> {
     if request.pbRequestSignature.is_null() {
@@ -172,7 +172,7 @@ impl OperationResponse {
             });
         }
         // Leak the buffer to the COM implementation
-        ManuallyDrop::new(buf);
+        _ = ManuallyDrop::new(buf);
         Ok(())
     }
 }
