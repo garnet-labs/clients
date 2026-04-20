@@ -32,12 +32,6 @@ pub struct PluginMakeCredentialRequest<'a> {
     inner: *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST<'a>,
     pub window_handle: HWND,
     pub transaction_id: GUID,
-    pub request_signature: Vec<u8>,
-    /// SHA-256 hash of the request.
-    ///
-    /// Can be used to verify the request later, for example in associated
-    /// prompts for user verification.
-    pub request_hash: Vec<u8>,
 }
 
 impl<'a> PluginMakeCredentialRequest<'a> {
@@ -107,7 +101,6 @@ impl<'a> PluginMakeCredentialRequest<'a> {
     /// - pbRequestSignature must be non-null and have the length specified in cbRequestSignature.
     pub(super) unsafe fn try_from_ptr(
         request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
-        request_hash: OwnedRequestHash,
     ) -> Result<PluginMakeCredentialRequest<'a>, WinWebAuthnError> {
         if !matches!(
             request.requestType,
@@ -149,12 +142,6 @@ impl<'a> PluginMakeCredentialRequest<'a> {
             inner: registration_request as *const WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
             window_handle: request.hWnd,
             transaction_id: request.transactionId,
-            request_signature: std::slice::from_raw_parts(
-                request.pbRequestSignature,
-                request.cbRequestSignature as usize,
-            )
-            .to_vec(),
-            request_hash: request_hash.to_vec(),
         })
     }
 }
