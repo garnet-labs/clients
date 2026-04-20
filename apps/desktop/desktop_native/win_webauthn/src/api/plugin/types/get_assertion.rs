@@ -4,7 +4,7 @@ use windows::{core::GUID, Win32::Foundation::HWND};
 
 use crate::{
     api::{
-        plugin::{crypto::OwnedRequestHash, WebAuthnCtapCborAuthenticatorOptions},
+        plugin::WebAuthnCtapCborAuthenticatorOptions,
         sys::plugin::{
             webauthn_decode_get_assertion_request, webauthn_free_decoded_get_assertion_request,
             WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_REQUEST,
@@ -20,8 +20,6 @@ pub struct PluginGetAssertionRequest<'a> {
     inner: *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST<'a>,
     pub window_handle: HWND,
     pub transaction_id: GUID,
-    pub request_signature: Vec<u8>,
-    pub request_hash: Vec<u8>,
 }
 
 impl<'a> PluginGetAssertionRequest<'a> {
@@ -66,7 +64,6 @@ impl<'a> PluginGetAssertionRequest<'a> {
     /// A request can be considered valid if the signature is verified as coming from the OS.
     pub(super) unsafe fn try_from_ptr(
         value: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
-        request_hash: OwnedRequestHash,
     ) -> Result<PluginGetAssertionRequest<'a>, WinWebAuthnError> {
         if !matches!(value.requestType, WEBAUTHN_PLUGIN_REQUEST_TYPE::CTAP2_CBOR) {
             return Err(WinWebAuthnError::new(
@@ -106,13 +103,6 @@ impl<'a> PluginGetAssertionRequest<'a> {
             inner: assertion_request as *const WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST,
             window_handle: value.hWnd,
             transaction_id: value.transactionId,
-            // SAFETY: Caller is expected to ensure that signature buffer parameters are correct.
-            request_signature: std::slice::from_raw_parts(
-                value.pbRequestSignature,
-                value.cbRequestSignature as usize,
-            )
-            .to_vec(),
-            request_hash: request_hash.to_vec(),
         })
     }
 }
