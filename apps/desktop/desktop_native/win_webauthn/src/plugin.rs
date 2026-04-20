@@ -173,17 +173,11 @@ impl WebAuthnPlugin {
         let result = add_credentials(&self.clsid, win_credentials);
 
         match result {
-            Err(err) => {
-                let err = WinWebAuthnError::with_cause(
-                            ErrorKind::WindowsInternal,
-                            "Failed to add credentials to Windows autofill list. Credentials list is now empty",
-                            err,
-                        );
-                tracing::error!(
-                            "Failed to add credentials to Windows autofill list. Credentials list is now empty. {err}"
-                        );
-                Err(err)
-            }
+            Err(err) => Err(WinWebAuthnError::with_cause(
+                ErrorKind::WindowsInternal,
+                "Failed to add credentials to Windows autofill list. Credentials list is now empty",
+                err,
+            )),
             Ok(()) => {
                 tracing::debug!("Successfully synced credentials to Windows");
                 Ok(())
