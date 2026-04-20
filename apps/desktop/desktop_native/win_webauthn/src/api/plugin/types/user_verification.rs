@@ -60,6 +60,7 @@ impl From<&PluginUserVerificationRequest> for PluginUserVerificationRequestRaw {
         PluginUserVerificationRequestRaw { inner }
     }
 }
+
 /// Response details from user verification.
 pub struct PluginUserVerificationResponse {
     pub transaction_id: GUID,

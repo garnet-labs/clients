@@ -94,6 +94,7 @@ impl<'a> OperationRequest<'a> for PluginMakeCredentialRequest<'a> {
         Self::try_from_ptr(request)
     }
 }
+
 struct OperationResponse {
     inner: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
 }
