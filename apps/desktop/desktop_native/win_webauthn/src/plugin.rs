@@ -30,34 +30,59 @@ use crate::{
 ///         &self,
 ///         request: PluginMakeCredentialRequest,
 ///     ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-///         todo!()
+///         let response = vec![ /* CTAP2 makeCredential response */];
+///         Ok(response)
 ///     }
 ///
 ///     fn get_assertion(&self, request: PluginGetAssertionRequest) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-///         todo!()
+///         let response = vec![ /* CTAP2 getAssertion response */];
+///         Ok(response)
 ///     }
 ///
 ///     fn cancel_operation(&self, request: PluginCancelOperationRequest)
 ///         -> Result<(), Box<dyn std::error::Error>> {
-///         todo!()
+///         Ok(())
 ///     }
 ///
 ///     fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn std::error::Error>> {
-///         todo!()
+///         Ok(PluginLockStatus::Unlocked)
 ///     }
 /// }
 ///
 /// let clsid = Clsid::try_from("51739952-ca07-4071-99bb-187481f8859e").unwrap();
 /// // Add this plugin as an option in Windows settings.
 /// let authenticator = MyAuthenticator { };
+/// let authenticator_info = AuthenticatorInfo {
+///     versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
+///     aaguid,
+///     options: Some(HashSet::from([
+///         "rk".to_string(),
+///         "up".to_string(),
+///         "uv".to_string(),
+///     ])),
+///     transports: Some(HashSet::from([
+///         "internal".to_string(),
+///         "hybrid".to_string(),
+///     ])),
+///     algorithms: Some(vec![PublicKeyCredentialParameters {
+///         alg: -7,
+///         typ: "public-key".to_string(),
+///     }]),
+/// };
 /// let options = PluginAddAuthenticatorOptions {
-///     authenticator_name: todo!(),
+///     authenticator_name: "My Authenticator".to_string(),
 ///     clsid,
-///     rp_id: todo!(),
-///     light_theme_logo_svg: todo!(),
-///     dark_theme_logo_svg: todo!(),
-///     authenticator_info: todo!(),
-///     supported_rp_ids: todo!(),
+///     rp_id: "example.com".to_string(),
+///     light_theme_logo_svg: Some(r#"
+///         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+///           <!-- Minimalist Circle and Letter Logo -->
+///           <circle cx="50" cy="50" r="40" stroke="black" stroke-width="4" fill="none" />
+///           <text x="50%" y="55%" text-anchor="middle" font-family="Arial" font-size="40" font-weight="bold" fill="black" dy=".3em">M</text>
+///         </svg>
+///     "#),
+///     dark_theme_logo_svg: None,
+///     authenticator_info,
+///     supported_rp_ids: None,
 /// };
 /// WebAuthnPlugin::add_authenticator(&options).unwrap();
 ///
