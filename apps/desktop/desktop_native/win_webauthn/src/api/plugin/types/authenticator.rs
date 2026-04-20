@@ -87,23 +87,9 @@ pub struct PluginAddAuthenticatorOptions {
     pub supported_rp_ids: Option<Vec<String>>,
 }
 
-impl PluginAddAuthenticatorOptions {
-    fn light_theme_logo_b64(&self) -> Option<Vec<u16>> {
-        self.light_theme_logo_svg
-            .as_ref()
-            .map(|svg| Self::encode_svg(svg))
-    }
-
-    fn dark_theme_logo_b64(&self) -> Option<Vec<u16>> {
-        self.dark_theme_logo_svg
-            .as_ref()
-            .map(|svg| Self::encode_svg(svg))
-    }
-
-    fn encode_svg(svg: &str) -> Vec<u16> {
-        let logo_b64: String = STANDARD.encode(svg);
-        logo_b64.to_utf16()
-    }
+fn encode_svg(svg: &str) -> Vec<u16> {
+    let logo_b64: String = STANDARD.encode(svg);
+    logo_b64.to_utf16()
 }
 
 pub(crate) struct PluginAddAuthenticatorOptionsRaw {
@@ -128,8 +114,8 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
 
         let rp_id = value.rp_id.as_deref().map(WindowsString::to_utf16);
 
-        let light_logo_b64 = value.light_theme_logo_b64();
-        let dark_logo_b64 = value.dark_theme_logo_b64();
+        let light_logo_b64 = value.light_theme_logo_svg.as_deref().map(encode_svg);
+        let dark_logo_b64 = value.dark_theme_logo_svg.as_deref().map(encode_svg);
 
         let authenticator_info = value.authenticator_info.as_ctap_bytes()?;
 
