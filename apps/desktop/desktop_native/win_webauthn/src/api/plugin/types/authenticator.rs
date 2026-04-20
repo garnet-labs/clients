@@ -133,6 +133,20 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
 
         let authenticator_info = value.authenticator_info.as_ctap_bytes()?;
 
+        let supported_rp_ids_len: Option<u32> = value
+            .supported_rp_ids
+            .as_ref()
+            .map(|v| {
+                v.len().try_into().map_err(|err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::InvalidArguments,
+                        "Too many supported RP IDs specified, must be less than 2^32.",
+                        err,
+                    )
+                })
+            })
+            .transpose()?;
+
         let supported_rp_ids: Option<Vec<Vec<u16>>> = value
             .supported_rp_ids
             .as_ref()
@@ -151,16 +165,20 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
             pwszDarkThemeLogoSvg: dark_logo_b64
                 .as_ref()
                 .map_or(std::ptr::null(), |v| v.as_ptr()),
-            cbAuthenticatorInfo: authenticator_info.len() as u32,
+            cbAuthenticatorInfo: authenticator_info.len().try_into().map_err(|err| {
+                WinWebAuthnError::with_cause(
+                    ErrorKind::InvalidArguments,
+                    "Authenticator info is too long; must be less than 2^32 bytes.",
+                    err,
+                )
+            })?,
             pbAuthenticatorInfo: authenticator_info.as_ptr(),
             // These pointers are self-referential and can cause issues if the
             // wrapper struct is moved, or if the Vec is modified without also
-            // updating the pointers in inner.pbSupporteRpIds.
+            // updating the pointers in inner.pbSupportedRpIds.
             // Consider removing this wrapper struct and inlining the call to
             // webauthn_plugin_add_authenticator to avoid this.
-            cSupportedRpIds: supported_rp_id_ptrs
-                .as_ref()
-                .map_or(0, |ids| ids.len() as u32),
+            cSupportedRpIds: supported_rp_ids_len.unwrap_or(0),
             pbSupportedRpIds: supported_rp_id_ptrs
                 .as_ref()
                 .map_or(std::ptr::null(), |v| v.as_ptr()),
@@ -349,8 +367,13 @@ pub(crate) fn add_credentials(
             user_display_name: c.user_display_name.as_ptr(),
         })
         .collect();
-    // SAFETY: We only run on platforms where usize >= 32;
-    let len = credentials.len() as u32;
+    let len: u32 = credentials.len().try_into().map_err(|err| {
+        WinWebAuthnError::with_cause(
+            ErrorKind::InvalidArguments,
+            "Too many credentials to add; maximum length is 2^32.",
+            err,
+        )
+    })?;
     let result =
         unsafe { webauthn_plugin_authenticator_add_credentials(&clsid.0, len, array.as_ptr()) }?;
     if let Err(err) = result.ok() {

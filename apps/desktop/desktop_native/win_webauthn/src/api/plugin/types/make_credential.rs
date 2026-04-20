@@ -252,23 +252,56 @@ impl PluginMakeCredentialResponse {
 
         // Get authenticator data pointer and length
         let pbAuthenticatorData = self.authenticator_data.as_ptr();
-        let cbAuthenticatorData = self.authenticator_data.len() as u32;
+        let cbAuthenticatorData = self.authenticator_data.len().try_into().map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::InvalidArguments,
+                "Authenticator data is too long; max size is 2^32 bytes.",
+                err,
+            )
+        })?;
 
         // Get optional attestation statement pointer and length
         let (pbAttestation, cbAttestation) = match self.attestation_statement.as_ref() {
-            Some(data) => (data.as_ptr(), data.len() as u32),
+            Some(data) => (
+                data.as_ptr(),
+                data.len().try_into().map_err(|err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::InvalidArguments,
+                        "Attestation statement is too long; max size is 2^32 bytes.",
+                        err,
+                    )
+                })?,
+            ),
             None => (std::ptr::null(), 0),
         };
 
         // Get optional attestation object pointer and length
         let (pbAttestationObject, cbAttestationObject) = match self.attestation_object.as_ref() {
-            Some(data) => (data.as_ptr(), data.len() as u32),
+            Some(data) => (
+                data.as_ptr(),
+                data.len().try_into().map_err(|err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::InvalidArguments,
+                        "Attestation object is too long; max size is 2^32 bytes.",
+                        err,
+                    )
+                })?,
+            ),
             None => (std::ptr::null(), 0),
         };
 
         // Get optional credential ID pointer and length
         let (pbCredentialId, cbCredentialId) = match self.credential_id.as_ref() {
-            Some(data) => (data.as_ptr(), data.len() as u32),
+            Some(data) => (
+                data.as_ptr(),
+                data.len().try_into().map_err(|err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::InvalidArguments,
+                        "Credential ID is too long; max size is 2^32 bytes.",
+                        err,
+                    )
+                })?,
+            ),
             None => (std::ptr::null(), 0),
         };
 
@@ -284,7 +317,16 @@ impl PluginMakeCredentialResponse {
         // Get optional unsigned extension outputs pointer and length
         let (pbUnsignedExtensionOutputs, cbUnsignedExtensionOutputs) =
             match self.unsigned_extension_outputs.as_ref() {
-                Some(data) => (data.as_ptr(), data.len() as u32),
+                Some(data) => (
+                    data.as_ptr(),
+                    data.len().try_into().map_err(|err| {
+                        WinWebAuthnError::with_cause(
+                            ErrorKind::InvalidArguments,
+                            "Unsigned extension output is too long; max size is 2^32 bytes.",
+                            err,
+                        )
+                    })?,
+                ),
                 None => (std::ptr::null(), 0),
             };
 
@@ -299,14 +341,32 @@ impl PluginMakeCredentialResponse {
 
         // Get optional client data JSON pointer and length
         let (pbClientDataJSON, cbClientDataJSON) = match self.client_data_json.as_ref() {
-            Some(data) => (data.as_ptr(), data.len() as u32),
+            Some(data) => (
+                data.as_ptr(),
+                data.len().try_into().map_err(|err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::InvalidArguments,
+                        "Unsigned extension output is too long; max size is 2^32 bytes.",
+                        err,
+                    )
+                })?,
+            ),
             None => (std::ptr::null(), 0),
         };
 
         // Get optional registration response JSON pointer and length
         let (pbRegistrationResponseJSON, cbRegistrationResponseJSON) =
             match self.registration_response_json.as_ref() {
-                Some(data) => (data.as_ptr(), data.len() as u32),
+                Some(data) => (
+                    data.as_ptr(),
+                    data.len().try_into().map_err(|err| {
+                        WinWebAuthnError::with_cause(
+                            ErrorKind::InvalidArguments,
+                            "registration response JSON is too long; max size is 2^32 bytes.",
+                            err,
+                        )
+                    })?,
+                ),
                 None => (std::ptr::null(), 0),
             };
 
