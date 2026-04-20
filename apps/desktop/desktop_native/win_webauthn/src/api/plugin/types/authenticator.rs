@@ -108,7 +108,7 @@ impl TryFrom<&PluginAddAuthenticatorOptions> for PluginAddAuthenticatorOptionsRa
     type Error = WinWebAuthnError;
 
     fn try_from(value: &PluginAddAuthenticatorOptions) -> Result<Self, Self::Error> {
-        let rclsid = Box::new(value.clsid.0);
+        let rclsid = Box::new(value.clsid.as_guid());
 
         let authenticator_name = value.authenticator_name.to_utf16();
 
@@ -360,8 +360,9 @@ pub(crate) fn add_credentials(
             err,
         )
     })?;
-    let result =
-        unsafe { webauthn_plugin_authenticator_add_credentials(&clsid.0, len, array.as_ptr()) }?;
+    let result = unsafe {
+        webauthn_plugin_authenticator_add_credentials(&clsid.as_guid(), len, array.as_ptr())
+    }?;
     if let Err(err) = result.ok() {
         return Err(WinWebAuthnError::with_cause(
             ErrorKind::WindowsInternal,
@@ -396,7 +397,7 @@ pub(crate) fn add_credentials(
 
 pub(crate) fn remove_all_credentials(clsid: Clsid) -> Result<(), WinWebAuthnError> {
     // SAFETY: API definition matches actual DLL.
-    let result = unsafe { webauthn_plugin_authenticator_remove_all_credentials(&clsid.0)? };
+    let result = unsafe { webauthn_plugin_authenticator_remove_all_credentials(&clsid.as_guid())? };
     result.ok().map_err(|err| {
         WinWebAuthnError::with_cause(
             ErrorKind::InvalidArguments,

@@ -64,6 +64,12 @@ pub type PluginLockStatus = super::sys::plugin::PLUGIN_LOCK_STATUS;
 #[derive(Clone, Copy, Debug)]
 pub struct Clsid(GUID);
 
+impl Clsid {
+    pub(crate) fn as_guid(&self) -> GUID {
+        self.0
+    }
+}
+
 impl TryFrom<&str> for Clsid {
     type Error = WinWebAuthnError;
 
