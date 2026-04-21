@@ -22,7 +22,6 @@ use super::{
     crypto::OwnedRequestHash, get_operation_signing_public_key, OperationRequest,
     OperationResponse, PluginAuthenticator, PluginLockStatus,
 };
-
 use crate::{
     api::{
         plugin::{get_request_hash, get_request_signature},

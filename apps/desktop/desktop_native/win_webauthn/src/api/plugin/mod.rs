@@ -7,6 +7,7 @@ mod types;
 
 use std::{error::Error, ptr::NonNull};
 
+pub use types::*;
 use windows::{
     core::{GUID, PCWSTR},
     Win32::{Security::Cryptography::BCRYPT_KEY_BLOB, System::Com::CLSIDFromString},
@@ -23,8 +24,6 @@ use crate::{
     },
     ErrorKind, WinWebAuthnError,
 };
-
-pub use types::*;
 
 pub type PluginLockStatus = super::sys::plugin::PLUGIN_LOCK_STATUS;
 
