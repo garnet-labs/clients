@@ -10,8 +10,7 @@ use std::{error::Error, marker::PhantomData, mem::MaybeUninit, ptr::NonNull};
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 pub use types::*;
 use windows::{
-    core::PCWSTR,
-    core::{GUID, HRESULT},
+    core::{GUID, HRESULT, PCWSTR},
     Win32::{
         Foundation::{E_INVALIDARG, HWND, NTE_USER_CANCELLED, S_OK},
         Security::Cryptography::BCRYPT_KEY_BLOB,
