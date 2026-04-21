@@ -177,9 +177,17 @@ impl Drop for VerifyingKey {
 /// identified by its CLSID.
 ///
 /// ```no_run
-/// use win_webauthn::plugin::{
-///     Clsid, PluginAddAuthenticatorOptions, PluginAuthenticator, PluginCancelOperationRequest,
-///     PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
+/// use std::collections::HashSet;
+///
+/// use win_webauthn::{
+///     AuthenticatorInfo,
+///     CtapVersion,
+///     PublicKeyCredentialParameters,
+///     Uuid,
+///     plugin::{
+///         Clsid, PluginAddAuthenticatorOptions, PluginAuthenticator, PluginCancelOperationRequest,
+///         PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
+///     },
 /// };
 ///
 /// struct MyAuthenticator { }
@@ -204,11 +212,12 @@ impl Drop for VerifyingKey {
 ///     }
 ///
 ///     fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn std::error::Error>> {
-///         Ok(PluginLockStatus::Unlocked)
+///         Ok(PluginLockStatus::PluginUnlocked)
 ///     }
 /// }
 ///
-/// let clsid = Clsid::try_from("51739952-ca07-4071-99bb-187481f8859e").unwrap();
+/// let clsid = Clsid::try_from("{51739952-ca07-4071-99bb-187481f8859e}").unwrap();
+/// let aaguid = Uuid::try_from("2ca2470f-fd84-4d7f-a0cd-68e71dd2d159").unwrap();
 /// // Add this plugin as an option in Windows settings.
 /// let authenticator = MyAuthenticator { };
 /// let authenticator_info = AuthenticatorInfo {
@@ -231,14 +240,14 @@ impl Drop for VerifyingKey {
 /// let options = PluginAddAuthenticatorOptions {
 ///     authenticator_name: "My Authenticator".to_string(),
 ///     clsid,
-///     rp_id: "example.com".to_string(),
+///     rp_id: Some("example.com".to_string()),
 ///     light_theme_logo_svg: Some(r#"
 ///         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
 ///           <!-- Minimalist Circle and Letter Logo -->
 ///           <circle cx="50" cy="50" r="40" stroke="black" stroke-width="4" fill="none" />
 ///           <text x="50%" y="55%" text-anchor="middle" font-family="Arial" font-size="40" font-weight="bold" fill="black" dy=".3em">M</text>
 ///         </svg>
-///     "#),
+///     "#.to_string()),
 ///     dark_theme_logo_svg: None,
 ///     authenticator_info,
 ///     supported_rp_ids: None,
@@ -266,6 +275,26 @@ impl WebAuthnPlugin {
     ) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
         let options_raw = options.try_into()?;
         add_authenticator(&options_raw)
+    }
+
+    /// Registers a COM server with Windows.
+    ///
+    /// The handler should be an instance of your type that implements PluginAuthenticator.
+    /// The same instance will be shared across all COM calls.
+    ///
+    /// This only needs to be called at the start of your application.
+    pub fn register_server<T>(&self, authenticator: T) -> Result<(), WinWebAuthnError>
+    where
+        T: PluginAuthenticator + Send + Sync + 'static,
+    {
+        unimplemented!();
+    }
+
+    /// Uninitializes the COM library for the calling thread.
+    ///
+    /// Not thread-safe: This must be called from the same thread that called [register_server].
+    pub fn shutdown_server() -> Result<(), WinWebAuthnError> {
+        unimplemented!()
     }
 
     /// Perform user verification related to an associated MakeCredential or GetAssertion request.

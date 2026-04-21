@@ -17,7 +17,7 @@ use std::{error::Error, fmt::Display};
 
 pub use api::webauthn::{
     AuthenticatorInfo, CredentialId, CtapTransport, CtapVersion, PublicKeyCredentialParameters,
-    UserId,
+    UserId, Uuid,
 };
 
 /// Errors that may be returned when interacting with this library.
