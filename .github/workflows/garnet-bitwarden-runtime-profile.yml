@@ -1,0 +1,33 @@
+name: Garnet Bitwarden Runtime Profile
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  runtime-profile:
+    name: Runtime profile (clients)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Garnet Runtime Visibility
+        uses: garnet-org/action@v2
+        with:
+          api_token: ${{ secrets.GARNET_API_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Profile dependency/runtime surface
+        shell: bash
+        run: |
+          set -euxo pipefail
+          npm ci --foreground-scripts --loglevel=info
