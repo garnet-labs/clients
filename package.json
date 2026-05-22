@@ -46,7 +46,7 @@
     "libs/**/*"
   ],
   "devDependencies": {
-    "@angular-devkit/build-angular": "20.3.12",
+    "@angular-devkit/build-angular": "20.3.26",
     "@angular-eslint/schematics": "20.7.0",
     "@angular/cli": "20.3.12",
     "@angular/compiler-cli": "20.3.18",
