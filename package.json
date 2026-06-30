@@ -48,7 +48,7 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "20.3.12",
     "@angular-eslint/schematics": "20.7.0",
-    "@angular/cli": "20.3.12",
+    "@angular/cli": "20.3.30",
     "@angular/compiler-cli": "20.3.18",
     "@babel/core": "7.29.0",
     "@babel/preset-env": "7.29.2",
